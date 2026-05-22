@@ -1,28 +1,108 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
 body {
     background-color: #0d0d10;
     color: #e4e4e7;
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+/* HEADER STYLE */
 .viewer-header {
-    background: #141417; padding: 16px 20px; border-bottom: 1px solid #27272a;
-    display: flex; justify-content: space-between; align-items: center;
-    position: sticky; top: 0; z-index: 90;
+    background: #141417;
+    padding: 16px 20px;
+    border-bottom: 1px solid #27272a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 90;
 }
-h1 { font-size: 1.25rem; color: #fff; font-weight: 700; }
-.clear-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
 
-/* KATALOG STYLE */
-.manga-grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 16px; padding: 20px; max-width: 1200px; margin: 0 auto; }
-.manga-card-box { background: #141417; border-radius: 8px; overflow: hidden; border: 1px solid #27272a; cursor: pointer; }
-.aspect-cover-holder { width: 100%; padding-top: 140%; position: relative; background: #222; }
-.aspect-cover-holder img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-.manga-meta-title { padding: 10px; font-size: 0.85rem; font-weight: 600; color: #fff; text-align: center; }
+h1 { 
+    font-size: 1.25rem; 
+    color: #fff; 
+    font-weight: 700; 
+}
 
-/* ==========================================================================
-   STRUKTUR UTAMA WEBTOON: ANTI-CELAH / MENEMPEL SEMPURNA
-   ========================================================================== */
+.clear-btn { 
+    background: #ef4444; 
+    color: white; 
+    border: none; 
+    padding: 8px 16px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: 600; 
+    font-size: 0.85rem; 
+}
+
+/* GRID KATALOG RAK BUKU */
+.manga-grid-layout { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
+    gap: 16px; 
+    padding: 20px; 
+    max-width: 1200px; 
+    margin: 0 auto; 
+}
+
+.manga-card-box { 
+    background: #141417; 
+    border-radius: 8px; 
+    overflow: hidden; 
+    border: 1px solid #27272a; 
+    cursor: pointer; 
+    transition: transform 0.2s; 
+    display: flex; 
+    flex-direction: column; 
+}
+
+.manga-card-box:hover { 
+    transform: translateY(-4px); 
+    border-color: #2563eb; 
+}
+
+.aspect-cover-holder { 
+    width: 100%; 
+    padding-top: 140%; 
+    position: relative; 
+    background: #222; 
+}
+
+.aspect-cover-holder img { 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+}
+
+.manga-meta-title { 
+    padding: 10px; 
+    font-size: 0.85rem; 
+    font-weight: 600; 
+    color: #fff; 
+    line-height: 1.3; 
+    text-align: center;
+    overflow: hidden; 
+    display: -webkit-box; 
+    -webkit-line-clamp: 2; 
+    -webkit-box-orient: vertical; 
+}
+
+.status-msg { 
+    grid-column: 1/-1; 
+    text-align: center; 
+    color: #a1a1aa; 
+    padding: 40px 0; 
+}
+
+/* STYLE KHUSUS WEBTOON: GAMBAR MENEMPEL SEPENUHNYA (0 PIKSEL CELAH) */
 .webtoon-stream-clean {
     display: flex;
     flex-direction: column;
@@ -34,12 +114,12 @@ h1 { font-size: 1.25rem; color: #fff; font-weight: 700; }
 }
 
 .webtoon-stream-clean img {
-    display: block;        /* Membunuh whitespace bawaan inline browser */
-    width: 100%;           /* Lebar penuh mengikuti pembungkus */
-    max-width: 800px;      /* Batasan lebar layar di PC agar tidak terlalu besar */
-    height: auto;          /* Menjaga rasio asli gambar agar tidak lonjong */
-    margin: 0 !important;  /* Memaksa jarak luar hilang */
-    padding: 0 !important; /* Memaksa jarak dalam hilang */
-    border: none;
-    line-height: 0;        /* Antisipasi gangguan font spacer */
+    display: block;              /* Menghapus spasi font otomatis bawaan browser */
+    width: 100%;                 /* Mengikuti lebar layar smartphone/PC */
+    max-width: 800px;            /* Batas lebar maksimal agar tidak terlalu melar di monitor PC */
+    height: auto;                /* Menjaga rasio asli gambar agar tidak lonjong/gepeng */
+    margin: 0 !important;        /* Memaksa jarak luar hilang total */
+    padding: 0 !important;       /* Memaksa jarak dalam hilang total */
+    border: none !important;     /* Menghilangkan garis pembatas */
+    line-height: 0;
 }

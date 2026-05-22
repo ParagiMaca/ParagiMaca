@@ -9,7 +9,7 @@
 <body>
     <header class="viewer-header">
         <div class="header-left">
-            <h1 onclick="navigateTo('catalog')" style="cursor: pointer;">ParagiMaca</h1>
+            <h1 onclick="filterByNav('all', null); navigateTo('catalog')" style="cursor: pointer;">ParagiMaca</h1>
         </div>
         <div class="header-right">
             <button id="back-btn" class="clear-btn" style="display: none;" onclick="handleBackAction()">⬅ Kembali</button>
@@ -18,10 +18,10 @@
 
     <div id="catalog-page">
         <nav class="category-nav">
-            <a href="#" class="nav-item active" onclick="filterByNav('all')">Beranda</a>
-            <a href="#" class="nav-item" onclick="filterByNav('Manga')">Manga</a>
-            <a href="#" class="nav-item" onclick="filterByNav('Manhua')">Manhua</a>
-            <a href="#" class="nav-item" onclick="filterByNav('Manhwa')">Manhwa</a>
+            <a href="#" id="nav-all" class="nav-item active" onclick="filterByNav('all', this)">Beranda</a>
+            <a href="#" class="nav-item" onclick="filterByNav('Manga', this)">Manga</a>
+            <a href="#" class="nav-item" onclick="filterByNav('Manhua', this)">Manhua</a>
+            <a href="#" class="nav-item" onclick="filterByNav('Manhwa', this)">Manhwa</a>
         </nav>
 
         <div class="filter-panel-box">
@@ -69,7 +69,7 @@
         <div class="detail-container">
             <div class="detail-upper">
                 <div class="detail-cover-box">
-                    <img id="detail-cover" src="" alt="Manga Cover" onerror="this.src='https://via.placeholder.com/300x420?text=No+Image'">
+                    <img id="detail-cover" src="" alt="Manga Cover">
                 </div>
                 <div class="detail-info">
                     <h2 id="detail-title">Judul Komik</h2>

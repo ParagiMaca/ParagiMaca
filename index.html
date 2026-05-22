@@ -3,20 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ParagiMaca - Baca Webtoon Tanpa Jeda</title>
+    <title>ParagiMaca - Situs Baca Komik Ideal</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header class="viewer-header">
-        <h1 onclick="backToCatalog()" style="cursor: pointer;">ParagiMaca</h1>
-        <button id="back-btn" class="clear-btn" style="display: none;" onclick="backToCatalog()">⬅ Kembali</button>
+        <div class="header-left">
+            <h1 onclick="navigateTo('catalog')" style="cursor: pointer;">ParagiMaca</h1>
+        </div>
+        <div class="header-right">
+            <button id="back-btn" class="clear-btn" style="display: none;" onclick="handleBackAction()">⬅ Kembali</button>
+        </div>
     </header>
 
-    <main class="manga-grid-layout" id="manga-container">
-        </main>
+    <div id="catalog-page">
+        <div class="hero-banner">
+            <div class="hero-content">
+                <span class="hero-tag">TRENDING MINGGU INI</span>
+                <h2 class="hero-title">After Improperly Licking a Dog, I Became a Billionaire</h2>
+                <p class="hero-synopsis">Kisah seru perjalanan mendadak menjadi miliarder setelah kejadian tak terduga. Ikuti keseruannya sekarang!</p>
+                <button class="primary-btn" onclick="openMangaDetailDirect('1')">Baca Sekarang</button>
+            </div>
+        </div>
 
-    <main id="reader-container" style="display: none;">
-        </main>
+        <div class="section-title-container">
+            <h3 class="section-heading">Update Terbaru</h3>
+        </div>
+        <main class="manga-grid-layout" id="manga-container">
+            </main>
+    </div>
+
+    <div id="detail-page" style="display: none;">
+        <div class="detail-container">
+            <div class="detail-upper">
+                <div class="detail-cover-box">
+                    <img id="detail-cover" src="" alt="Manga Cover">
+                </div>
+                <div class="detail-info">
+                    <h2 id="detail-title">Judul Komik</h2>
+                    <p class="detail-author">Author: <span id="detail-author-name">Studio Core</span></p>
+                    <p class="detail-status">Status: <span class="status-badge">Berjalan</span></p>
+                    <div class="detail-genres" id="detail-genres-container">
+                        </div>
+                    <div class="detail-synopsis">
+                        <h3>Sinopsis</h3>
+                        <p id="detail-synopsis-text">Ini adalah sinopsis komik yang menceritakan petualangan epik sang karakter utama dalam menghadapi berbagai rintangan kehidupan.</p>
+                    </div>
+                    <div class="detail-actions">
+                        <button class="primary-btn" onclick="startReading(0)">Baca Chapter Pertama</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chapter-section">
+                <h3>Daftar Chapter</h3>
+                <div class="chapter-list" id="chapter-list-container">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="reader-page" style="display: none;">
+        <div class="reader-controls">
+            <div class="control-group">
+                <label for="mode-select">Mode:</label>
+                <select id="mode-select" onchange="switchReaderMode(this.value)">
+                    <option value="webtoon">Webtoon (Scroll)</option>
+                    <option value="manga">Manga (Per Halaman)</option>
+                </select>
+            </div>
+            <div id="manga-nav-buttons" class="control-group" style="display: none;">
+                <button class="nav-arrow-btn" onclick="prevPage()">◀ Kiri</button>
+                <span id="page-indicator">1 / 1</span>
+                <button class="nav-arrow-btn" onclick="nextPage()">Kanan ▶</button>
+            </div>
+        </div>
+
+        <main id="reader-container">
+            </main>
+    </div>
 
     <script src="apps.js"></script>
 </body>

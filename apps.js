@@ -1,11 +1,16 @@
 let mangaList = [];
+let currentSelectedManga = null;
+let currentReaderMode = "webtoon"; // Default mode gulir
+let currentMangaPageIdx = 0; // Index halaman aktif untuk mode Manga
 
-// Berjalan otomatis saat browser selesai memuat halaman website
+// State Navigasi
+let currentPageState = "catalog"; // catalog | detail | reader
+
 window.onload = function() {
     fetchMangaData();
 };
 
-// 1. Mengambil data komik dari file manga_data.json yang ada di GitHub Anda
+// 1. Mengambil data komik
 async function fetchMangaData() {
     const container = document.getElementById('manga-container');
     container.innerHTML = "<p class='status-msg'>Memuat database komik...</p>";
@@ -24,7 +29,7 @@ async function fetchMangaData() {
     }
 }
 
-// 2. Menampilkan daftar komik (Rak Buku) di halaman utama
+// 2. Menampilkan katalog utama di beranda
 function displayCatalog(list) {
     const container = document.getElementById('manga-container');
     container.innerHTML = "";
@@ -44,45 +49,168 @@ function displayCatalog(list) {
             <div class="manga-meta-title">${manga.title}</div>
         `;
         
-        card.onclick = () => openReader(manga);
+        card.onclick = () => openMangaDetail(manga);
         container.appendChild(card);
     });
 }
 
-// 3. Fungsi membaca Webtoon mengalir rapat ke bawah tanpa jeda spasi
-function openReader(manga) {
-    document.getElementById('manga-container').style.display = 'none';
+// Shortcut klik tombol Hero Banner langsung ke Detail Komik berdasarkan ID
+function openMangaDetailDirect(id) {
+    const targetManga = mangaList.find(m => m.id === id);
+    if(targetManga) openMangaDetail(targetManga);
+}
+
+// 3. Membuka Halaman Detail Komik
+function openMangaDetail(manga) {
+    currentSelectedManga = manga;
+    navigateTo('detail');
+
+    // Mengisi Metadata Info Komik
+    document.getElementById('detail-cover').src = manga.cover;
+    document.getElementById('detail-title').innerText = manga.title;
     
+    // Render Genre Tags
+    const genreContainer = document.getElementById('detail-genres-container');
+    genreContainer.innerHTML = "";
+    if (manga.genres) {
+        manga.genres.forEach(genre => {
+            const span = document.createElement('span');
+            span.className = "genre-tag";
+            span.innerText = genre;
+            genreContainer.appendChild(span);
+        });
+    }
+
+    // Render Daftar Chapter (Simulasi statis berbasis data objek komik tunggal)
+    const chapterContainer = document.getElementById('chapter-list-container');
+    chapterContainer.innerHTML = "";
+    
+    const chapterItem = document.createElement('div');
+    chapterItem.className = "chapter-item";
+    chapterItem.innerHTML = `
+        <span>Chapter 01 (Rilisan Utama)</span>
+        <span style="color: #a1a1aa; font-size: 0.85rem;">Terbaru</span>
+    `;
+    chapterItem.onclick = () => startReading(0);
+    chapterContainer.appendChild(chapterItem);
+}
+
+// 4. Inisiasi lembaran pembaca komik
+function startReading(startingPageIdx = 0) {
+    currentMangaPageIdx = startingPageIdx;
+    navigateTo('reader');
+    renderReaderContent();
+}
+
+// 5. Merender gambar komik sesuai mode pembaca yang dipilih
+function renderReaderContent() {
     const reader = document.getElementById('reader-container');
-    reader.innerHTML = ""; // Bersihkan lembaran lama
-    reader.style.display = 'block';
+    const navButtons = document.getElementById('manga-nav-buttons');
+    reader.innerHTML = ""; // Clear
 
-    const backBtn = document.getElementById('back-btn');
-    if (backBtn) backBtn.style.display = 'block';
+    if (!currentSelectedManga || !currentSelectedManga.pages) return;
 
-    const streamWrapper = document.createElement('div');
-    streamWrapper.className = "webtoon-stream-clean";
+    if (currentReaderMode === "webtoon") {
+        // Mode Mengalir Tanpa Jeda Spasi Rapat ke Bawah
+        navButtons.style.display = "none";
+        
+        const streamWrapper = document.createElement('div');
+        streamWrapper.className = "webtoon-stream-clean";
 
-    // Menyusun gambar secara berurutan rapat ke bawah
-    manga.pages.forEach(imgUrl => {
+        currentSelectedManga.pages.forEach(imgUrl => {
+            const img = document.createElement('img');
+            img.src = imgUrl.trim();
+            img.alt = "Lembaran Webtoon";
+            img.onerror = function() { 
+                this.src = 'https://via.placeholder.com/800x600?text=Gambar+Gagal+Dimuat'; 
+            };
+            streamWrapper.appendChild(img);
+        });
+        reader.appendChild(streamWrapper);
+    } else {
+        // Mode Manga Tradisional (Per halaman klik Kanan/Kiri)
+        navButtons.style.display = "flex";
+        document.getElementById('page-indicator').innerText = `${currentMangaPageIdx + 1} / ${currentSelectedManga.pages.length}`;
+
+        const mangaWrapper = document.createElement('div');
+        mangaWrapper.className = "manga-mode-layout";
+
         const img = document.createElement('img');
-        img.src = imgUrl.trim();
-        img.alt = "Halaman Manga";
+        img.src = currentSelectedManga.pages[currentMangaPageIdx].trim();
+        img.alt = `Manga Page ${currentMangaPageIdx + 1}`;
+        img.onclick = () => nextPage(); // Klik gambar untuk lanjut
         img.onerror = function() { 
-            this.src = 'https://via.placeholder.com/800x600?text=Gambar+Gagal+Dimuat'; 
+            this.src = 'https://via.placeholder.com/600x800?text=Halaman+Gagal+Dimuat'; 
         };
-        streamWrapper.appendChild(img);
-    });
 
-    reader.appendChild(streamWrapper);
+        mangaWrapper.appendChild(img);
+        reader.appendChild(mangaWrapper);
+    }
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 4. Kembali ke halaman muka katalog depan
-function backToCatalog() {
-    document.getElementById('manga-container').style.display = 'grid';
-    document.getElementById('reader-container').style.display = 'none';
+// Mengganti Mode Pembaca
+function switchReaderMode(mode) {
+    currentReaderMode = mode;
+    currentMangaPageIdx = 0; // reset page jika ganti mode
+    renderReaderContent();
+}
+
+// Navigasi Per Halaman (Manga Mode)
+function nextPage() {
+    if (currentSelectedManga && currentMangaPageIdx < currentSelectedManga.pages.length - 1) {
+        currentMangaPageIdx++;
+        renderReaderContent();
+    } else if (currentMangaPageIdx === currentSelectedManga.pages.length - 1) {
+        alert("Anda telah mencapai halaman terakhir chapter ini.");
+    }
+}
+
+function prevPage() {
+    if (currentMangaPageIdx > 0) {
+        currentMangaPageIdx--;
+        renderReaderContent();
+    }
+}
+
+// 6. Sistem Manajemen Navigasi Router Sederhana
+function navigateTo(targetState) {
+    currentPageState = targetState;
     
+    // Definisikan DOM Elemen Kontainer Page
+    const catalogPage = document.getElementById('catalog-page');
+    const detailPage = document.getElementById('detail-page');
+    const readerPage = document.getElementById('reader-page');
     const backBtn = document.getElementById('back-btn');
-    if (backBtn) backBtn.style.display = 'none';
+
+    // Sembunyikan Semua Dahulu
+    catalogPage.style.display = "none";
+    detailPage.style.display = "none";
+    readerPage.style.display = "none";
+
+    if (targetState === 'catalog') {
+        catalogPage.style.display = "block";
+        backBtn.style.display = "none";
+    } else if (targetState === 'detail') {
+        detailPage.style.display = "block";
+        backBtn.style.display = "block";
+    } else if (targetState === 'reader') {
+        readerPage.style.display = "block";
+        backBtn.style.display = "block";
+    }
+}
+
+// Menangani Aksi Tombol Kembali di Header
+function handleBackAction() {
+    if (currentPageState === 'reader') {
+        navigateTo('detail');
+    } else if (currentPageState === 'detail') {
+        navigateTo('catalog');
+    }
+}
+
+// Fallback untuk klik judul logo teks utama
+function backToCatalog() {
+    navigateTo('catalog');
 }

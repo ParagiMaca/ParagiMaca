@@ -1,0 +1,13 @@
+[
+  {
+    "id": "1",
+    "title": "Bye bye sisters - Chapter 01",
+    "cover": "https://i.postimg.cc/XqY2Z9xx/cover.jpg",
+    "genres": ["Romance", "Drama", "School Life"],
+    "pages": [
+      "https://i.postimg.cc/page1.jpg",
+      "https://i.postimg.cc/page2.jpg",
+      "https://i.postimg.cc/page3.jpg"
+    ]
+  }
+]

@@ -5,15 +5,14 @@
 }
 
 body {
-    background-color: #0d0d10;
+    background-color: #0f0f12;
     color: #e4e4e7;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.5;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* HEADER STYLE (STICKY) */
+/* HEADER STYLE */
 .viewer-header {
-    background: #141417;
+    background: #18181c;
     padding: 16px 24px;
     border-bottom: 1px solid #27272a;
     display: flex;
@@ -24,369 +23,130 @@ body {
     z-index: 100;
 }
 
-h1 { 
-    font-size: 1.5rem; 
-    color: #fff; 
-    font-weight: 800; 
-    letter-spacing: -0.5px;
-}
+h1 { font-size: 1.4rem; color: #fff; font-weight: 700; }
+.clear-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
 
-.clear-btn { 
-    background: #27272a; 
-    color: white; 
-    border: 1px solid #3f3f46; 
-    padding: 8px 16px; 
-    border-radius: 6px; 
-    cursor: pointer; 
-    font-weight: 600; 
-    font-size: 0.85rem; 
-    transition: background 0.2s;
-}
-
-.clear-btn:hover {
-    background: #3f3f46;
-}
-
-/* HERO BANNER BERANDA */
-.hero-banner {
-    background: linear-gradient(180deg, rgba(20,20,23,0.4) 0%, rgba(13,13,16,1) 100%), url('https://i.postimg.cc/mDtw78f4/cover.jpg');
-    background-size: cover;
-    background-position: center;
-    padding: 60px 24px;
-    min-height: 300px;
+/* NAVIGASI KATEGORI ATAS */
+.category-nav {
     display: flex;
-    align-items: flex-end;
+    gap: 4px;
+    background: #18181c;
+    padding: 10px 24px;
+    max-width: 1200px;
+    margin: 12px auto;
+    border-radius: 6px;
+    border: 1px solid #27272a;
 }
 
-.hero-content {
-    max-width: 600px;
-}
-
-.hero-tag {
-    background: #2563eb;
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 4px 8px;
-    border-radius: 4px;
-    display: inline-block;
-    margin-bottom: 12px;
-}
-
-.hero-title {
-    font-size: 2rem;
-    color: #fff;
-    margin-bottom: 8px;
-    line-height: 1.2;
-}
-
-.hero-synopsis {
+.nav-item {
     color: #a1a1aa;
-    font-size: 0.95rem;
-    margin-bottom: 16px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    text-decoration: none;
+    padding: 6px 14px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: all 0.2s;
 }
 
-/* GLOBAL BUTTON */
-.primary-btn {
+.nav-item:hover, .nav-item.active {
+    background: #2563eb;
+    color: #fff;
+}
+
+/* BOX COMPONENT FILTER ADVANCED */
+.filter-panel-box {
+    background: #18181c;
+    max-width: 1200px;
+    margin: 0 auto 20px auto;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #27272a;
+}
+
+.filter-header-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 16px;
+}
+
+.filter-grid-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) 120px;
+    gap: 12px;
+}
+
+.filter-group select {
+    width: 100%;
+    background: #202024;
+    color: #e4e4e7;
+    border: 1px solid #27272a;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+}
+
+.search-apply-btn {
     background: #2563eb;
     color: white;
     border: none;
-    padding: 10px 20px;
     border-radius: 6px;
     font-weight: 600;
     cursor: pointer;
+    font-size: 0.9rem;
     transition: background 0.2s;
 }
 
-.primary-btn:hover {
-    background: #1d4ed8;
-}
+.search-apply-btn:hover { background: #1d4ed8; }
 
 /* GRID KATALOG RAK BUKU */
-.section-title-container {
-    max-width: 1200px;
-    margin: 24px auto 0 auto;
-    padding: 0 24px;
-}
-
-.section-heading {
-    font-size: 1.25rem;
-    color: #fff;
-    border-left: 4px solid #2563eb;
-    padding-left: 10px;
-}
-
 .manga-grid-layout { 
     display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
     gap: 20px; 
-    padding: 20px 24px; 
+    padding: 0; 
     max-width: 1200px; 
-    margin: 0 auto; 
+    margin: 0 auto 40px auto; 
 }
 
 .manga-card-box { 
-    background: #141417; 
-    border-radius: 8px; 
+    background: #18181c; 
+    border-radius: 6px; 
     overflow: hidden; 
     border: 1px solid #27272a; 
     cursor: pointer; 
-    transition: transform 0.2s, border-color 0.2s; 
     display: flex; 
     flex-direction: column; 
 }
 
-.manga-card-box:hover { 
-    transform: translateY(-4px); 
-    border-color: #2563eb; 
-}
+.manga-card-box:hover { border-color: #2563eb; }
+.aspect-cover-holder { width: 100%; padding-top: 140%; position: relative; background: #222; }
+.aspect-cover-holder img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+.manga-meta-title { padding: 12px; font-size: 0.9rem; font-weight: 600; color: #fff; line-height: 1.4; text-align: center;}
 
-.aspect-cover-holder { 
-    width: 100%; 
-    padding-top: 140%; 
-    position: relative; 
-    background: #222; 
-}
+/* DETAIL & READER VIEWPORT STYLE RE-ADAPTED */
+.detail-container { max-width: 900px; margin: 30px auto; padding: 0 24px; }
+.detail-upper { display: flex; gap: 30px; margin-bottom: 30px; }
+.detail-cover-box { width: 200px; border-radius: 6px; overflow: hidden; border: 1px solid #27272a; }
+.detail-cover-box img { width: 100%; height: auto; display: block; }
+.status-badge { background: #10b981; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
+.detail-genres { display: flex; gap: 8px; margin: 12px 0; }
+.genre-tag { background: #27272a; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; }
+.primary-btn { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+.chapter-list { background: #18181c; border: 1px solid #27272a; border-radius: 6px; margin-top: 12px; }
+.chapter-item { display: flex; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid #27272a; cursor: pointer; }
+.chapter-item:hover { color: #2563eb; background: #202024;}
 
-.aspect-cover-holder img { 
-    position: absolute; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
-}
+.reader-controls { background: #18181c; padding: 10px; border-bottom: 1px solid #27272a; position: sticky; top: 60px; z-index: 90; display: flex; justify-content: center; gap: 20px; }
+#reader-container { background-color: #121212; width: 100%; }
+.webtoon-stream-clean { display: flex; flex-direction: column; align-items: center; }
+.webtoon-stream-clean img { width: 100%; max-width: 750px; height: auto; }
+.manga-mode-layout { display: flex; justify-content: center; padding: 20px; }
+.manga-mode-layout img { max-width: 100%; max-height: 85vh; }
 
-.manga-meta-title { 
-    padding: 12px; 
-    font-size: 0.9rem; 
-    font-weight: 600; 
-    color: #fff; 
-    line-height: 1.4; 
-    text-align: left;
-    overflow: hidden; 
-    display: -webkit-box; 
-    -webkit-line-clamp: 2; 
-    -webkit-box-orient: vertical; 
-}
-
-.status-msg { 
-    grid-column: 1/-1; 
-    text-align: center; 
-    color: #a1a1aa; 
-    padding: 40px 0; 
-}
-
-/* HALAMAN DETAIL STYLE */
-.detail-container {
-    max-width: 900px;
-    margin: 30px auto;
-    padding: 0 24px;
-}
-
-.detail-upper {
-    display: flex;
-    gap: 30px;
-    margin-bottom: 40px;
-}
-
-.detail-cover-box {
-    width: 220px;
-    flex-shrink: 0;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #27272a;
-}
-
-.detail-cover-box img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-.detail-info h2 {
-    font-size: 1.75rem;
-    color: #fff;
-    margin-bottom: 8px;
-}
-
-.detail-author, .detail-status {
-    font-size: 0.9rem;
-    color: #a1a1aa;
-    margin-bottom: 6px;
-}
-
-.status-badge {
-    background: #10b981;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.detail-genres {
-    display: flex;
-    gap: 8px;
-    margin: 14px 0;
-    flex-wrap: wrap;
-}
-
-.genre-tag {
-    background: #27272a;
-    color: #e4e4e7;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    border: 1px solid #3f3f46;
-}
-
-.detail-synopsis {
-    margin-bottom: 20px;
-}
-
-.detail-synopsis h3, .chapter-section h3 {
-    font-size: 1.1rem;
-    color: #fff;
-    margin-bottom: 8px;
-}
-
-.detail-synopsis p {
-    color: #a1a1aa;
-    font-size: 0.95rem;
-    text-align: justify;
-}
-
-/* DAFTAR CHAPTER */
-.chapter-list {
-    background: #141417;
-    border: 1px solid #27272a;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.chapter-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 14px 20px;
-    border-bottom: 1px solid #27272a;
-    cursor: pointer;
-    transition: background 0.2s;
-    color: #e4e4e7;
-    text-decoration: none;
-}
-
-.chapter-item:last-child {
-    border-bottom: none;
-}
-
-.chapter-item:hover {
-    background: #1f1f23;
-    color: #2563eb;
-}
-
-/* HALAMAN PEMBACA (READER) & RE-PRELOAD GAMBAR */
-.reader-controls {
-    background: rgba(20, 20, 23, 0.95);
-    backdrop-filter: blur(8px);
-    padding: 10px 24px;
-    border-bottom: 1px solid #27272a;
-    position: sticky;
-    top: 61px; /* Tepat di bawah main header */
-    z-index: 95;
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-    align-items: center;
-}
-
-.control-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.9rem;
-}
-
-.control-group select {
-    background: #27272a;
-    color: white;
-    border: 1px solid #3f3f46;
-    padding: 6px 12px;
-    border-radius: 4px;
-    outline: none;
-}
-
-.nav-arrow-btn {
-    background: #2563eb;
-    border: none;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-/* DISTRACTION-FREE WEBTOON VIEW */
-#reader-container {
-    background-color: #121212; /* Mengurangi ketegangan mata */
-    width: 100%;
-    margin: 0 auto;
-    padding: 0;
-}
-
-.webtoon-stream-clean {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-}
-
-.webtoon-stream-clean img {
-    display: block;
-    width: 100%;
-    max-width: 750px; /* Lebar ideal kenyamanan membaca di desktop */
-    height: auto;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none;
-}
-
-/* MANGA MODE LAYOUT (SINGLE PAGE VIBE) */
-.manga-mode-layout {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px 10px;
-    min-height: calc(100vh - 120px);
-}
-
-.manga-mode-layout img {
-    max-width: 100%;
-    max-height: 85vh;
-    height: auto;
-    object-fit: contain;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    cursor: pointer;
-}
-
-/* RESPONSIVE DESIGN (BREAKPOINTS TO DESKTOP/MOBILE) */
 @media (max-width: 768px) {
-    .detail-upper {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    .detail-cover-box {
-        width: 180px;
-    }
-    .detail-genres {
-        justify-content: center;
-    }
-    .hero-title {
-        font-size: 1.5rem;
-    }
+    .filter-grid-inputs { grid-template-columns: 1fr; }
+    .detail-upper { flex-direction: column; align-items: center; text-align: center; }
 }

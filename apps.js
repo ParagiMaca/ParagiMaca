@@ -23,6 +23,7 @@ window.onload = function() {
 // 1b. Mengisi Kotak Pilihan Kontributor Berdasarkan Master Dropdown Filter Sebelah Atas
 function initGenreCheckboxes() {
     const container = document.getElementById('manga-genre-checkbox-container');
+    const editContainer = document.getElementById('edit-genre-checkbox-container');
     if (!container) return;
     
     const genreOptions = Array.from(document.querySelectorAll('#filter-genre option'))
@@ -30,11 +31,22 @@ function initGenreCheckboxes() {
                               .filter(val => val !== 'all');
 
     container.innerHTML = "";
+    if (editContainer) editContainer.innerHTML = "";
+
     genreOptions.forEach(genre => {
+        // Kontributor Box
         const label = document.createElement('label');
         label.style.cssText = "display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #fff; cursor: pointer; user-select: none;";
         label.innerHTML = `<input type="checkbox" name="contributor-genres" value="${genre}" style="width:auto; margin:0; cursor:pointer;"> <span>${genre}</span>`;
         container.appendChild(label);
+
+        // Edit Box
+        if (editContainer) {
+            const labelEdit = document.createElement('label');
+            labelEdit.style.cssText = "display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #fff; cursor: pointer; user-select: none;";
+            labelEdit.innerHTML = `<input type="checkbox" name="edit-manga-genres" value="${genre}" style="width:auto; margin:0; cursor:pointer;"> <span>${genre}</span>`;
+            editContainer.appendChild(labelEdit);
+        }
     });
 }
 
@@ -426,35 +438,9 @@ function initUploadFeature() {
             }
 
             progressText.innerText = "Status: Menyinkronkan database ke GitHub...";
+            await pushDatabaseUpdate(`Kontributor Update: Chapter ${chNumVal}`);
 
-            const getUrl = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
-            const fileMetaRes = await fetch(getUrl, {
-                headers: { "Authorization": `token ${GITHUB_CONFIG.token}` }
-            });
-            const fileMeta = await fileMetaRes.json();
-            const currentSha = fileMeta.sha;
-
-            const rawJsonText = JSON.stringify(allMangaData, null, 2);
-            const encodedContent = btoa(unescape(encodeURIComponent(rawJsonText)));
-
-            const pushResponse = await fetch(getUrl, {
-                method: 'PUT',
-                headers: {
-                    "Authorization": `token ${GITHUB_CONFIG.token}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    message: `Kontributor Update: Chapter ${chNumVal}`,
-                    content: encodedContent,
-                    sha: currentSha
-                })
-            });
-
-            if (!pushResponse.ok) {
-                throw new Error("Database gagal disinkronkan ke Cloud GitHub.");
-            }
-
-            alert("Sukses! Judul komik Doujinshi berhasil diterbitkan!");
+            alert("Sukses! Judul komik berhasil diterbitkan!");
 
             displayCatalog(allMangaData);
             populateMangaDropdown();
@@ -480,6 +466,225 @@ function initUploadFeature() {
     });
 }
 
+// 15. FITUR PENYUNTINGAN POSTINGAN BARU (EDIT MODE)
+function openEditPostModal() {
+    if (!currentSelectedManga) return;
+    const modal = document.getElementById('edit-post-modal');
+    modal.style.display = 'flex';
+
+    // Memuat data meta
+    document.getElementById('edit-manga-title').value = currentSelectedManga.title;
+    document.getElementById('edit-manga-type').value = currentSelectedManga.type;
+    document.getElementById('edit-manga-status').value = currentSelectedManga.status;
+    document.getElementById('edit-manga-cover').value = currentSelectedManga.cover;
+    document.getElementById('edit-manga-synopsis').value = currentSelectedManga.synopsis || "";
+
+    // Memuat daftar genre yang dicentang
+    const genreCheckboxes = document.querySelectorAll('input[name="edit-manga-genres"]');
+    genreCheckboxes.forEach(cb => {
+        cb.checked = currentSelectedManga.genres && currentSelectedManga.genres.includes(cb.value);
+    });
+
+    // Memuat dropdown chapters ke penyunting halaman
+    const chapterSelector = document.getElementById('edit-chapter-select');
+    chapterSelector.innerHTML = '<option value="">Pilih Chapter...</option>';
+    
+    if (currentSelectedManga.chapters && currentSelectedManga.chapters.length > 0) {
+        currentSelectedManga.chapters.forEach((ch, idx) => {
+            const opt = document.createElement('option');
+            opt.value = idx;
+            opt.innerText = `Chapter ${ch.chapter_number}`;
+            chapterSelector.appendChild(opt);
+        });
+    }
+
+    document.getElementById('editor-chapter-pages-container').style.display = 'none';
+    document.getElementById('edit-progress-text').innerText = "Siap melakukan perubahan.";
+    document.getElementById('edit-progress-text').style.color = "#a1a1aa";
+}
+
+function closeEditPostModal() {
+    document.getElementById('edit-post-modal').style.display = 'none';
+}
+
+// Menampilkan input URL halaman dari chapter yang dipilih untuk pengeditan link yang rusak
+function loadChapterPagesToEditor(chapterIdxStr) {
+    const container = document.getElementById('editor-chapter-pages-container');
+    const listWrapper = document.getElementById('pages-edit-list');
+    listWrapper.innerHTML = "";
+
+    if (chapterIdxStr === "") {
+        container.style.display = 'none';
+        return;
+    }
+
+    container.style.display = 'block';
+    const chIdx = parseInt(chapterIdxStr);
+    const selectedCh = currentSelectedManga.chapters[chIdx];
+    if (!selectedCh || !selectedCh.pages) return;
+
+    selectedCh.pages.forEach((pUrl, index) => {
+        const row = document.createElement('div');
+        row.className = 'page-url-row';
+        row.innerHTML = `
+            <span class="page-num-lbl">Hal ${index + 1}</span>
+            <input type="text" class="edit-page-url-input" value="${pUrl.trim()}" placeholder="Masukkan Link URL Gambar...">
+            <button type="button" class="del-page-row-btn" onclick="this.parentElement.remove(); reindexPageLabels();" title="Hapus Halaman">&times;</button>
+        `;
+        listWrapper.appendChild(row);
+    });
+}
+
+function reindexPageLabels() {
+    const rows = document.querySelectorAll('#pages-edit-list .page-url-row');
+    rows.forEach((row, idx) => {
+        row.querySelector('.page-num-lbl').innerText = `Hal ${idx + 1}`;
+    });
+}
+
+function addNewPageUrlRow() {
+    const listWrapper = document.getElementById('pages-edit-list');
+    const newIdx = listWrapper.children.length + 1;
+    const row = document.createElement('div');
+    row.className = 'page-url-row';
+    row.innerHTML = `
+        <span class="page-num-lbl">Hal ${newIdx}</span>
+        <input type="text" class="edit-page-url-input" value="" placeholder="Masukkan Link URL Gambar Baru...">
+        <button type="button" class="del-page-row-btn" onclick="this.parentElement.remove(); reindexPageLabels();">&times;</button>
+    `;
+    listWrapper.appendChild(row);
+}
+
+function deleteCurrentChapter() {
+    const chapterSelector = document.getElementById('edit-chapter-select');
+    const chIdxStr = chapterSelector.value;
+    if (chIdxStr === "") return;
+
+    if (confirm("Apakah Anda yakin ingin menghapus chapter ini secara permanen?")) {
+        const chIdx = parseInt(chIdxStr);
+        currentSelectedManga.chapters.splice(chIdx, 1);
+        
+        // Perbarui antarmuka modal
+        openEditPostModal();
+        alert("Bab terhapus dari memori lokal. Jangan lupa tekan 'Simpan Perubahan' di bawah untuk menyinkronkan ke server cloud GitHub!");
+    }
+}
+
+// Melakukan penyimpanan semua metadata dan struktur halaman yang disunting ke GitHub
+async function saveMangaChanges() {
+    const saveBtn = document.getElementById('save-edit-btn');
+    const progressText = document.getElementById('edit-progress-text');
+    
+    const newTitle = document.getElementById('edit-manga-title').value.trim();
+    const newCover = document.getElementById('edit-manga-cover').value.trim();
+    const newSynopsis = document.getElementById('edit-manga-synopsis').value.trim();
+    const newType = document.getElementById('edit-manga-type').value;
+    const newStatus = document.getElementById('edit-manga-status').value;
+
+    const selectedGenres = Array.from(document.querySelectorAll('input[name="edit-manga-genres"]:checked'))
+                                .map(cb => cb.value);
+
+    if (!newTitle || !newCover) {
+        alert("Judul dan Tautan Cover tidak boleh kosong!");
+        return;
+    }
+
+    saveBtn.innerText = "Menyimpan...";
+    saveBtn.disabled = true;
+    progressText.innerText = "Status: Memperbarui objek lokal...";
+    progressText.style.color = "#eab308";
+
+    try {
+        // Terapkan ke objek komik terpilih saat ini
+        currentSelectedManga.title = newTitle;
+        currentSelectedManga.cover = newCover;
+        currentSelectedManga.synopsis = newSynopsis;
+        currentSelectedManga.type = newType;
+        currentSelectedManga.status = newStatus;
+        currentSelectedManga.genres = selectedGenres;
+
+        // Ambil data halaman bab dari interface penyunting jika aktif dibuka
+        const chapterSelector = document.getElementById('edit-chapter-select');
+        const activeChIdxStr = chapterSelector.value;
+        if (activeChIdxStr !== "") {
+            const chIdx = parseInt(activeChIdxStr);
+            const inputElements = document.querySelectorAll('#pages-edit-list .edit-page-url-input');
+            const updatedPages = Array.from(inputElements)
+                                      .map(inp => inp.value.trim())
+                                      .filter(val => val !== "");
+            
+            if (currentSelectedManga.chapters[chIdx]) {
+                currentSelectedManga.chapters[chIdx].pages = updatedPages;
+            }
+        }
+
+        // Perbarui di dalam daftar array utama (allMangaData)
+        const elementIndex = allMangaData.findIndex(m => m.id === currentSelectedManga.id);
+        if (elementIndex !== -1) {
+            allMangaData[elementIndex] = currentSelectedManga;
+        }
+
+        progressText.innerText = "Status: Mengirim data teranyar ke GitHub Cloud...";
+        
+        await pushDatabaseUpdate(`Kontributor Sunting: ${newTitle}`);
+
+        progressText.innerText = "Status: Sukses Diperbarui!";
+        progressText.style.color = "#10b981";
+        alert("Sukses! Suntingan postingan komik berhasil disimpan ke database!");
+        
+        closeEditPostModal();
+        
+        // Segarkan Detail Page
+        openMangaDetail(currentSelectedManga);
+        displayCatalog(allMangaData);
+
+    } catch (e) {
+        console.error(e);
+        progressText.innerText = "Status: Gagal menyinkronkan.";
+        progressText.style.color = "#ef4444";
+        alert(`Gagal menyimpan suntingan: ${e.message}`);
+    } finally {
+        saveBtn.innerText = "Simpan Perubahan";
+        saveBtn.disabled = false;
+    }
+}
+
+// Helper untuk memperbarui repositori GitHub
+async function pushDatabaseUpdate(commitMessage) {
+    const getUrl = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
+    const fileMetaRes = await fetch(getUrl, {
+        headers: { "Authorization": `token ${GITHUB_CONFIG.token}` }
+    });
+    
+    if (!fileMetaRes.ok) {
+        throw new Error("Gagal mengambil meta SHA database dari GitHub.");
+    }
+    
+    const fileMeta = await fileMetaRes.json();
+    const currentSha = fileMeta.sha;
+
+    const rawJsonText = JSON.stringify(allMangaData, null, 2);
+    const encodedContent = btoa(unescape(encodeURIComponent(rawJsonText)));
+
+    const pushResponse = await fetch(getUrl, {
+        method: 'PUT',
+        headers: {
+            "Authorization": `token ${GITHUB_CONFIG.token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            message: commitMessage,
+            content: encodedContent,
+            sha: currentSha
+        })
+    });
+
+    if (!pushResponse.ok) {
+        throw new Error("Database gagal disinkronkan ke Cloud GitHub.");
+    }
+}
+
+// Navigasi halaman dasar
 function navigateTo(state) {
     currentPageState = state;
     document.getElementById('catalog-page').style.display = state === 'catalog' ? 'block' : 'none';

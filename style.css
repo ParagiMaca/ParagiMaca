@@ -7,14 +7,14 @@
 body {
     background-color: #0f0f12;
     color: #e4e4e7;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
 }
 
 /* HEADER STYLE */
 .viewer-header {
     background: #18181c;
-    padding: 12px 16px; /* Diperkecil dari 16px */
+    padding: 12px 16px; 
     border-bottom: 1px solid #27272a;
     display: flex;
     justify-content: space-between;
@@ -25,7 +25,7 @@ body {
 }
 
 h1 { 
-    font-size: 1.15rem; /* Diperkecil dari 1.3rem */
+    font-size: 1.15rem; 
     color: #fff; 
     font-weight: 700; 
     letter-spacing: -0.3px; 
@@ -35,177 +35,19 @@ h1 {
     background: #ef4444; 
     color: white; 
     border: none; 
-    padding: 6px 12px; 
-    border-radius: 4px; 
-    cursor: pointer; 
-    font-weight: 600; 
-    font-size: 0.8rem; /* Diperkecil */
-}
+    padding: 6px 12px; \n    border-radius: 4px; \n    cursor: pointer; \n    font-weight: 600; \n    font-size: 0.8rem; \n}\n\n/* BAR NAV */\n.category-nav {\n    display: flex;\n    gap: 4px;\n    padding: 8px 16px;\n    background: #121215;\n    border-bottom: 1px solid #1c1c21;\n    overflow-x: auto;\n    white-space: nowrap;\n    scrollbar-width: none;\n}\n.category-nav::-webkit-scrollbar { display: none; }\n\n.nav-item {\n    color: #a1a1aa;\n    text-decoration: none;\n    font-size: 0.85rem;\n    padding: 6px 12px;\n    border-radius: 6px;\n    font-weight: 500;\n    transition: all 0.2s;\n}\n.nav-item.active {\n    color: #fff;\n    background: #27272a;\n}\n\n/* FILTER PANEL */\n.filter-panel-box {\n    background: #18181c;\n    margin: 16px;\n    padding: 16px;\n    border-radius: 8px;\n    border: 1px solid #27272a;\n}\n\n.filter-header-title {\n    font-size: 0.85rem;\n    font-weight: 700;\n    text-transform: uppercase;\n    color: #a1a1aa;\n    margin-bottom: 12px;\n    letter-spacing: 0.5px;\n}\n\n.filter-grid-inputs {\n    display: grid;\n    grid-template-columns: repeat(2, 1fr);\n    gap: 10px;\n    margin-bottom: 4px;\n}\n\n@media (min-width: 768px) {\n    .filter-grid-inputs {\n        grid-template-columns: repeat(5, 1fr);\n    }\n}\n\n.filter-group select {\n    width: 100%;\n    background: #202024;\n    border: 1px solid #27272a;\n    color: #fff;\n    padding: 10px;\n    border-radius: 6px;\n    font-size: 0.85rem;\n    outline: none;\n    cursor: pointer;\n    appearance: none;\n}\n\n.search-apply-btn {\n    grid-column: span 2;\n    background: #2563eb;\n    color: white;\n    border: none;\n    padding: 10px;\n    border-radius: 6px;\n    font-weight: 600;\n    font-size: 0.85rem;\n    cursor: pointer;\n}\n\n@media (min-width: 768px) {\n    .search-apply-btn {\n        grid-column: span 1;\n    }\n}\n\n/* MANGA CATALOG GRID */\n.manga-grid-layout {\n    display: grid;\n    grid-template-columns: repeat(3, 1fr);\n    gap: 12px;\n    padding: 0 16px 32px 16px;\n}\n\n@media (min-width: 640px) {\n    .manga-grid-layout {\n        grid-template-columns: repeat(4, 1fr);\n    }\n}\n@media (min-width: 1024px) {\n    .manga-grid-layout {\n        grid-template-columns: repeat(6, 1fr);\n    }\n}\n\n.manga-card-box {\n    cursor: pointer;\n    display: flex;\n    flex-direction: column;\n    gap: 6px;\n}\n\n.aspect-cover-holder {\n    position: relative;\n    width: 100%;\n    padding-top: 135%;\n    background: #1c1c21;\n    border-radius: 6px;\n    overflow: hidden;\n    border: 1px solid #27272a;\n}\n\n.aspect-cover-holder img {\n    position: absolute;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    object-fit: cover;\n    transition: transform 0.3s;\n}\n\n.manga-card-box:hover .aspect-cover-holder img {\n    transform: scale(1.04);\n}\n\n.manga-meta-title {\n    font-size: 0.8rem;\n    font-weight: 600;\n    color: #e4e4e7;\n    display: -webkit-box;\n    -webkit-line-clamp: 2;\n    -webkit-box-orient: vertical;\n    overflow: hidden;\n    line-height: 1.3;\n    height: 2.6rem;\n}\n\n/* DETAIL PAGE */\n.detail-container {\n    padding: 16px;\n    max-width: 800px;\n    margin: 0 auto 40px auto;\n}\n\n.detail-upper {\n    display: flex;\n    flex-direction: column;\n    gap: 16px;\n    margin-bottom: 24px;\n}\n\n@media (min-width: 768px) {\n    .detail-upper {\n        flex-direction: row;\n        align-items: flex-start;\n    }\n}\n\n.detail-cover-box {\n    width: 150px;\n    margin: 0 auto;\n    flex-shrink: 0;\n}\n\n@media (min-width: 768px) {\n    .detail-cover-box {\n        width: 180px;\n        margin: 0;\n    }\n}\n\n.detail-cover-box img {\n    width: 100%;\n    border-radius: 8px;\n    border: 1px solid #27272a;\n    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);\n}\n\n.detail-info {\n    flex-grow: 1;\n    display: flex;\n    flex-direction: column;\n    gap: 10px;\n    text-align: center;\n}\n\n@media (min-width: 768px) {\n    .detail-info {\n        text-align: left;\n    }\n}\n\n#detail-title {\n    font-size: 1.3rem;\n    color: #fff;\n    font-weight: 800;\n}\n\n.detail-author {\n    font-size: 0.85rem;\n    color: #a1a1aa;\n}\n\n.status-badge {\n    background: #10b981;\n    color: white;\n    padding: 2px 6px;\n    border-radius: 4px;\n    font-weight: bold;\n    font-size: 0.75rem;\n}\n\n.detail-genres {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 6px;\n    justify-content: center;\n}\n\n@media (min-width: 768px) { .detail-genres { justify-content: flex-start; } }\n\n.genre-tag { background: #27272a; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; color: #a1a1aa; }\n.primary-btn { background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: 600; cursor: pointer; width: 100%; font-size: 0.85rem; }\n\n@media (min-width: 768px) { .primary-btn { width: auto; } }\n\n.detail-synopsis h3 { font-size: 0.9rem; margin-bottom: 4px; color: #fff; }\n.detail-synopsis p { font-size: 0.82rem; color: #a1a1aa; line-height: 1.5; }\n\n.chapter-section { margin-top: 24px; }\n.chapter-section h3 { font-size: 0.95rem; color: #fff; margin-bottom: 8px; }\n\n.chapter-list { background: #18181c; border: 1px solid #27272a; border-radius: 6px; margin-top: 10px; }\n.chapter-item { display: flex; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid #27272a; cursor: pointer; font-size: 0.82rem; }\n.chapter-item:hover { color: #2563eb; background: #202024;}\n\n/* READER PAGE */\n.reader-controls {\n    background: #18181c;\n    padding: 8px;\n    border-bottom: 1px solid #27272a;\n    position: sticky;\n    top: 49px;\n    z-index: 90;\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n}\n\n.reader-controls select {\n    background: #202024;\n    border: 1px solid #27272a;\n    color: white;\n    padding: 6px 10px;\n    border-radius: 4px;\n    font-size: 0.8rem;\n}\n\n.nav-arrow-btn {\n    background: #27272a;\n    color: #fff;\n    border: none;\n    padding: 6px 12px;\n    border-radius: 4px;\n    font-size: 0.8rem;\n    cursor: pointer;\n}\n\n#page-indicator {\n    font-size: 0.8rem;\n    color: #a1a1aa;\n    min-width: 50px;\n    text-align: center;\n}\n\n/* WEBTOON MODE STYLE */\n.webtoon-stream-clean {\n    display: flex;\n    flex-direction: column;\n    background: #000;\n    max-width: 800px;\n    margin: 0 auto;\n}\n\n.webtoon-stream-clean img {\n    width: 100%;\n    display: block;\n    height: auto;\n}\n\n/* MANGA MODE STYLE */\n.manga-mode-layout {\n    max-width: 700px;\n    margin: 10px auto 40px auto;\n    padding: 0 8px;\n}\n\n.manga-mode-layout img {\n    width: 100%;\n    height: auto;\n    border-radius: 4px;\n    cursor: pointer;\n    box-shadow: 0 4px 20px rgba(0,0,0,0.6);\n}\n\n.status-msg {\n    text-align: center;\n    padding: 40px 20px;\n    color: #a1a1aa;\n    font-size: 0.9rem;\n    grid-column: 1 / -1;\n}\n\n/* ==========================================================================\n   TAMBAHAN BARU: CSS UNTUK AREA UNGGUH GAMBAR IMGBB TANPA LOGIN\n   ========================================================================== */\n.upload-section-box {\n    margin-top: 15px;\n    padding-top: 14px;\n    border-top: 1px solid #27272a;\n    display: flex;\n    flex-direction: column;\n    gap: 8px;\n}\n\n.upload-section-title {\n    font-size: 0.8rem;\n    color: #a1a1aa;\n    font-weight: 600;\n}\n\n.upload-flex-container {\n    display: flex;\n    gap: 8px;\n    align-items: center;\n    flex-wrap: wrap;\n}\n\n#imgbb-upload-input {\n    font-size: 0.8rem;\n    color: #fff;\n    background: #202024;\n    padding: 8px;\n    border-radius: 6px;\n    border: 1px solid #27272a;\n    flex-grow: 1;\n    min-width: 180px;\n    cursor: pointer;\n}\n\n#upload-status-btn {\n    background: #10b981;\n    color: white;\n    border: none;\n    padding: 9px 16px;\n    border-radius: 6px;\n    font-weight: 600;\n    font-size: 0.8rem;\n    cursor: pointer;\n    transition: background 0.2s, transform 0.1s;\n}\n\n#upload-status-btn:hover {\n    background: #059669;\n}\n\n#upload-status-btn:active {\n    transform: scale(0.97);\n}\n```
 
-/* BAR NAVIGASI HORIZONTAL TAB */
-.category-nav {
-    display: flex;
-    gap: 6px;
-    background: #18181c;
-    padding: 8px 12px; /* Diperkecil */
-    max-width: 1200px;
-    margin: 8px auto;
-    border-radius: 6px;
-    border: 1px solid #27272a;
-    overflow-x: auto;
-    white-space: nowrap;
-}
+---
 
-.category-nav::-webkit-scrollbar {
-    display: none;
-}
+### Langkah Verifikasi Terakhir
 
-.nav-item {
-    color: #a1a1aa;
-    text-decoration: none;
-    padding: 6px 12px; /* Diperkecil agar tidak terlalu lebar */
-    font-size: 0.82rem; /* Diperkecil dari 0.9rem */
-    font-weight: 600;
-    border-radius: 4px;
-    transition: all 0.2s;
-    display: inline-block;
-}
+Agar penamaan class CSS di atas singkron sempurna, pastikan potongan kode pembungkus upload di bagian bawah **`index.html`** Anda disesuaikan menggunakan *class-class* baru di atas seperti ini (agar kodenya jauh lebih bersih dan tidak menumpuk kode *inline style*):
 
-.nav-item:hover, .nav-item.active {
-    background: #2563eb;
-    color: #fff;
-}
-
-/* PANEL FILTER BOX (MENGHEMAT RUANG HP) */
-.filter-panel-box {
-    background: #18181c;
-    max-width: 1200px;
-    margin: 0 12px 14px 12px; /* Jarak luar dipersempit */
-    padding: 12px; /* Padding dalam diperkecil dari 16px */
-    border-radius: 6px;
-    border: 1px solid #27272a;
-}
-
-@media (min-width: 1200px) {
-    .filter-panel-box { margin: 0 auto 16px auto; }
-}
-
-.filter-header-title {
-    font-size: 0.88rem; /* Diperkecil dari 1rem */
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 10px;
-}
-
-.filter-grid-inputs {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 8px; /* Jarak antar dropdown diperkecil */
-}
-
-.filter-group select {
-    width: 100%;
-    background: #202024;
-    color: #e4e4e7;
-    border: 1px solid #27272a;
-    padding: 8px 10px; /* Diperkecil dari 10px */
-    border-radius: 5px;
-    font-size: 0.8rem; /* Diperkecil dari 0.85rem */
-    outline: none;
-    cursor: pointer;
-    -webkit-appearance: none;
-}
-
-.search-apply-btn {
-    background: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 0.82rem; /* Diperkecil */
-    padding: 8px;
-    grid-column: 1 / -1;
-}
-
-@media (min-width: 768px) {
-    .filter-grid-inputs { grid-template-columns: repeat(4, 1fr) 90px; }
-    .search-apply-btn { grid-column: auto; }
-}
-
-/* GRID UTAMA KATALOG (RAK KOMIK) */
-.manga-grid-layout { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); /* Diperkecil agar muat lebih banyak kolom di HP */
-    gap: 12px; /* Celah dipersempit */
-    padding: 0 12px; 
-    max-width: 1200px; 
-    margin: 0 auto 30px auto; 
-}
-
-.manga-card-box { 
-    background: #18181c; 
-    border-radius: 6px; 
-    overflow: hidden; 
-    border: 1px solid #27272a; 
-    cursor: pointer; 
-    display: flex; 
-    flex-direction: column; 
-}
-
-.manga-card-box:hover { border-color: #2563eb; }
-.aspect-cover-holder { width: 100%; padding-top: 140%; position: relative; background: #222; }
-.aspect-cover-holder img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-
-.manga-meta-title { 
-    padding: 8px; /* Diperkecil */
-    font-size: 0.78rem; /* Diperkecil dari 0.85rem agar teks judul proporsional */
-    font-weight: 600; 
-    color: #e4e4e7; 
-    line-height: 1.25; 
-    text-align: left; 
-    overflow: hidden; 
-    display: -webkit-box; 
-    -webkit-line-clamp: 2; 
-    -webkit-box-orient: vertical;
-}
-
-.status-msg { 
-    grid-column: 1/-1; 
-    text-align: center; 
-    color: #a1a1aa; 
-    padding: 30px 0; 
-    font-size: 0.82rem;
-}
-
-/* DETAIL & READER SECTION VIEWPORT */
-.detail-container { max-width: 800px; margin: 16px auto; padding: 0 12px; }
-.detail-upper { display: flex; flex-direction: column; gap: 16px; align-items: center; text-align: center; margin-bottom: 20px; }
-
-@media (min-width: 768px) {
-    .detail-upper { flex-direction: row; text-align: left; align-items: flex-start; }
-}
-
-.detail-cover-box { width: 140px; border-radius: 6px; overflow: hidden; border: 1px solid #27272a; }
-.detail-cover-box img { width: 100%; height: auto; display: block; }
-.status-badge { background: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
-.detail-genres { display: flex; gap: 6px; margin: 10px 0; flex-wrap: wrap; justify-content: center; }
-
-@media (min-width: 768px) { .detail-genres { justify-content: flex-start; } }
-
-.genre-tag { background: #27272a; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; color: #a1a1aa; }
-.primary-btn { background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: 600; cursor: pointer; width: 100%; font-size: 0.85rem; }
-
-@media (min-width: 768px) { .primary-btn { width: auto; } }
-
-.chapter-list { background: #18181c; border: 1px solid #27272a; border-radius: 6px; margin-top: 10px; }
-.chapter-item { display: flex; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid #27272a; cursor: pointer; font-size: 0.82rem; }
-.chapter-item:hover { color: #2563eb; background: #202024;}
-
-.reader-controls { background: #18181c; padding: 8px; border-bottom: 1px solid #27272a; position: sticky; top: 49px; z-index: 90; display: flex; justify-content: center; gap: 16px; }
-.reader-controls select { background: #202024; color: #fff; border: 1px solid #27272a; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
-#reader-container { background-color: #000; width: 100%; }
-.webtoon-stream-clean { display: flex; flex-direction: column; align-items: center; }
-.webtoon-stream-clean img { width: 100%; max-width: 700px; height: auto; display: block; margin: 0; padding: 0; border: none; }
-.manga-mode-layout { display: flex; justify-content: center; padding: 10px; }
-.manga-mode-layout img { max-width: 100%; max-height: 85vh; }
+```html
+<div class="upload-section-box">
+    <label class="upload-section-title">Tambah Komik Baru (Unggah Cover):</label>
+    <div class="upload-flex-container">
+        <input type="file" id="imgbb-upload-input" accept="image/*">
+        <button id="upload-status-btn">Upload</button>
+    </div>
+</div>

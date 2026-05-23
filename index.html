@@ -61,10 +61,49 @@
             </div>
 
             <div class="upload-section-box">
-                <label class="upload-section-title">Tambah Komik Baru (Unggah Cover):</label>
-                <div class="upload-flex-container">
-                    <input type="file" id="imgbb-upload-input" accept="image/*">
-                    <button id="upload-status-btn">Upload</button>
+                <label class="upload-section-title">Panel Kontributor: Tambah Komik & Chapter Baru</label>
+                
+                <div class="form-grid-layout">
+                    <div class="form-input-group">
+                        <input type="text" id="manga-title-input" placeholder="Masukkan Judul Komik...">
+                    </div>
+                    <div class="form-input-group">
+                        <input type="text" id="chapter-num-input" placeholder="Nomor Chapter (Contoh: 01, 02)">
+                    </div>
+                    <div class="form-input-group">
+                        <select id="manga-type-input">
+                            <option value="Manga">Tipe: Manga</option>
+                            <option value="Manhua">Tipe: Manhua</option>
+                            <option value="Manhwa">Tipe: Manhwa</option>
+                        </select>
+                    </div>
+                    <div class="form-input-group">
+                        <select id="manga-genre-input">
+                            <option value="Action">Genre: Action</option>
+                            <option value="Romance">Genre: Romance</option>
+                            <option value="Urban">Genre: Urban</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-input-group" style="margin-top: 8px;">
+                    <textarea id="manga-synopsis-input" rows="2" placeholder="Tulis ringkasan cerita atau sinopsis komik di sini..."></textarea>
+                </div>
+
+                <div class="upload-files-row" style="margin-top: 8px;">
+                    <div class="file-picker-block">
+                        <span>1. Pilih Cover:</span>
+                        <input type="file" id="imgbb-cover-input" accept="image/*">
+                    </div>
+                    <div class="file-picker-block">
+                        <span>2. Gambar Isi Bab (Bisa Pilih Banyak):</span>
+                        <input type="file" id="imgbb-pages-input" accept="image/*" multiple>
+                    </div>
+                </div>
+
+                <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div id="upload-progress-text" style="font-size: 0.78rem; color: #eab308; font-weight: 600;">Status: Siap mengisi formulir.</div>
+                    <button id="upload-status-btn" style="min-width: 120px;">Terbitkan Komik</button>
                 </div>
             </div>
         </div>
@@ -85,7 +124,7 @@
                     <div class="detail-genres" id="detail-genres-container"></div>
                     <div class="detail-synopsis">
                         <h3>Sinopsis</h3>
-                        <p>Kisah seru petualangan yang tidak boleh Anda lewatkan begitu saja di platform ParagiMaca.</p>
+                        <p id="detail-synopsis-text">Kisah seru petualangan yang tidak boleh Anda lewatkan begitu saja di platform ParagiMaca.</p>
                     </div>
                     <div class="detail-actions">
                         <button class="primary-btn" onclick="startReading(0)">Baca Chapter Pertama</button>

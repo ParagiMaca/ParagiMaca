@@ -315,30 +315,6 @@
                         <select id="existing-manga-select"></select>
                     </div>
                 </div>
-<div class="upload-section-box" id="edit-post-panel" style="display: none; border-top: 2px solid #eab308; background: #1a1a1e; margin-top: 10px;">
-    <label class="upload-section-title" style="color: #eab308;">🔧 Mode Edit Postingan</label>
-    <input type="hidden" id="edit-manga-id">
-    
-    <div class="form-input-group" style="margin-bottom: 10px;">
-        <input type="text" id="edit-manga-title" placeholder="Edit Judul...">
-    </div>
-    
-    <div class="form-input-group">
-        <textarea id="edit-manga-synopsis" rows="3" placeholder="Edit Sinopsis..."></textarea>
-    </div>
-
-    <div class="upload-files-row" style="margin-top: 10px;">
-        <div class="file-picker-block">
-            <span>Ganti Cover (Opsional):</span>
-            <input type="file" id="edit-manga-cover" accept="image/*">
-        </div>
-    </div>
-
-    <div style="margin-top: 15px; display: flex; gap: 10px;">
-        <button onclick="saveMangaEdit()" style="background: #22c55e; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; flex: 1;">Simpan Perubahan</button>
-        <button onclick="cancelMangaEdit()" style="background: #ef4444; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; flex: 1;">Batal</button>
-    </div>
-</div>
 
                 <div class="form-grid-layout" id="meta-manga-fields">
                     <div class="form-input-group">
@@ -434,4 +410,3 @@
     <script src="apps.js"></script>
 </body>
 </html>
-<button class="clear-btn" onclick="triggerEditMode()" style="margin-left:10px; background:#eab308; color:black;">Edit Postingan</button>

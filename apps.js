@@ -68,7 +68,6 @@ async function fetchMangaData() {
             const rawData = JSON.parse(decodedContent);
             
             allMangaData = rawData.map(m => {
-                // LOGIKA DETEKSI OTOMATIS BERDASARKAN KEYWORD JUDUL (DITAMBAH DOUJINSHI)
                 let detectedType = "Manhwa"; 
                 if (m.title.toLowerCase().includes("manga")) detectedType = "Manga";
                 if (m.title.toLowerCase().includes("manhua")) detectedType = "Manhua";
@@ -455,6 +454,9 @@ function initUploadFeature() {
             progressText.innerText = "Status: Sukses Diterbitkan!";
             progressText.style.color = "#10b981";
 
+            // Beralih ke katalog setelah sukses
+            navigateTo('catalog');
+
         } catch (error) {
             alert(`Gagal: ${error.message}`);
             progressText.innerText = "Status: Kesalahan pengiriman.";
@@ -472,20 +474,17 @@ function openEditPostModal() {
     const modal = document.getElementById('edit-post-modal');
     modal.style.display = 'flex';
 
-    // Memuat data meta
     document.getElementById('edit-manga-title').value = currentSelectedManga.title;
     document.getElementById('edit-manga-type').value = currentSelectedManga.type;
     document.getElementById('edit-manga-status').value = currentSelectedManga.status;
     document.getElementById('edit-manga-cover').value = currentSelectedManga.cover;
     document.getElementById('edit-manga-synopsis').value = currentSelectedManga.synopsis || "";
 
-    // Memuat daftar genre yang dicentang
     const genreCheckboxes = document.querySelectorAll('input[name="edit-manga-genres"]');
     genreCheckboxes.forEach(cb => {
         cb.checked = currentSelectedManga.genres && currentSelectedManga.genres.includes(cb.value);
     });
 
-    // Memuat dropdown chapters ke penyunting halaman
     const chapterSelector = document.getElementById('edit-chapter-select');
     chapterSelector.innerHTML = '<option value="">Pilih Chapter...</option>';
     
@@ -507,7 +506,6 @@ function closeEditPostModal() {
     document.getElementById('edit-post-modal').style.display = 'none';
 }
 
-// Menampilkan input URL halaman dari chapter yang dipilih untuk pengeditan link yang rusak
 function loadChapterPagesToEditor(chapterIdxStr) {
     const container = document.getElementById('editor-chapter-pages-container');
     const listWrapper = document.getElementById('pages-edit-list');
@@ -564,13 +562,11 @@ function deleteCurrentChapter() {
         const chIdx = parseInt(chIdxStr);
         currentSelectedManga.chapters.splice(chIdx, 1);
         
-        // Perbarui antarmuka modal
         openEditPostModal();
         alert("Bab terhapus dari memori lokal. Jangan lupa tekan 'Simpan Perubahan' di bawah untuk menyinkronkan ke server cloud GitHub!");
     }
 }
 
-// Melakukan penyimpanan semua metadata dan struktur halaman yang disunting ke GitHub
 async function saveMangaChanges() {
     const saveBtn = document.getElementById('save-edit-btn');
     const progressText = document.getElementById('edit-progress-text');
@@ -595,7 +591,6 @@ async function saveMangaChanges() {
     progressText.style.color = "#eab308";
 
     try {
-        // Terapkan ke objek komik terpilih saat ini
         currentSelectedManga.title = newTitle;
         currentSelectedManga.cover = newCover;
         currentSelectedManga.synopsis = newSynopsis;
@@ -603,7 +598,6 @@ async function saveMangaChanges() {
         currentSelectedManga.status = newStatus;
         currentSelectedManga.genres = selectedGenres;
 
-        // Ambil data halaman bab dari interface penyunting jika aktif dibuka
         const chapterSelector = document.getElementById('edit-chapter-select');
         const activeChIdxStr = chapterSelector.value;
         if (activeChIdxStr !== "") {
@@ -618,7 +612,6 @@ async function saveMangaChanges() {
             }
         }
 
-        // Perbarui di dalam daftar array utama (allMangaData)
         const elementIndex = allMangaData.findIndex(m => m.id === currentSelectedManga.id);
         if (elementIndex !== -1) {
             allMangaData[elementIndex] = currentSelectedManga;
@@ -634,7 +627,6 @@ async function saveMangaChanges() {
         
         closeEditPostModal();
         
-        // Segarkan Detail Page
         openMangaDetail(currentSelectedManga);
         displayCatalog(allMangaData);
 
@@ -649,7 +641,6 @@ async function saveMangaChanges() {
     }
 }
 
-// Helper untuk memperbarui repositori GitHub
 async function pushDatabaseUpdate(commitMessage) {
     const getUrl = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
     const fileMetaRes = await fetch(getUrl, {
@@ -688,14 +679,30 @@ async function pushDatabaseUpdate(commitMessage) {
 function navigateTo(state) {
     currentPageState = state;
     document.getElementById('catalog-page').style.display = state === 'catalog' ? 'block' : 'none';
+    document.getElementById('editor-page').style.display = state === 'editor' ? 'block' : 'none';
     document.getElementById('detail-page').style.display = state === 'detail' ? 'block' : 'none';
     document.getElementById('reader-page').style.display = state === 'reader' ? 'block' : 'none';
+    
+    // Tampilkan tombol kembali jika bukan di halaman katalog utama
     document.getElementById('back-btn').style.display = state === 'catalog' ? 'none' : 'block';
+    
+    // Kelola status aktif link header
+    const editorBtn = document.getElementById('nav-editor-btn');
+    if (editorBtn) {
+        if (state === 'editor') {
+            editorBtn.classList.add('active');
+        } else {
+            editorBtn.classList.remove('active');
+        }
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function handleBackAction() {
-    if (currentPageState === 'reader') navigateTo('detail');
-    else if (currentPageState === 'detail') {
+    if (currentPageState === 'reader') {
+        navigateTo('detail');
+    } else if (currentPageState === 'detail' || currentPageState === 'editor') {
         navigateTo('catalog');
         executeCombinedFilter(); 
     }

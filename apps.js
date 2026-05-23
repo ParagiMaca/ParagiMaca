@@ -3,7 +3,7 @@ const GITHUB_CONFIG = {
     username: "ParagiMaca",           
     repo: "ParagiMaca",               
     path: "manga_data.json",          
-    token: "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" 
+    token: "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" // Ingat gantilah token ini jika di-revoke github
 };
 
 let allMangaData = [];
@@ -17,9 +17,29 @@ let currentNavType = "all";
 window.onload = function() {
     fetchMangaData();
     initUploadFeature(); 
+    initGenreCheckboxes(); // Menghidupkan list centangan genre di HP
 };
 
-// 2. Mengambil Data Komik Secara Live dari Cloud Repositori GitHub (Mencegah Cache)
+// 1b. Mengisi Kotak Pilihan Kontributor Berdasarkan Master Dropdown Filter Sebelah Atas
+function initGenreCheckboxes() {
+    const container = document.getElementById('manga-genre-checkbox-container');
+    if (!container) return;
+    
+    // Membaca teks opsi genre dari HTML secara dinamis
+    const genreOptions = Array.from(document.querySelectorAll('#filter-genre option'))
+                              .map(opt => opt.value)
+                              .filter(val => val !== 'all');
+
+    container.innerHTML = "";
+    genreOptions.forEach(genre => {
+        const label = document.createElement('label');
+        label.style.cssText = "display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #fff; cursor: pointer; user-select: none;";
+        label.innerHTML = `<input type="checkbox" name="contributor-genres" value="${genre}" style="width:auto; margin:0; cursor:pointer;"> <span>${genre}</span>`;
+        container.appendChild(label);
+    });
+}
+
+// 2. Mengambil Data Komik Secara Live dari Cloud Repositori GitHub
 async function fetchMangaData() {
     const container = document.getElementById('manga-container');
     container.innerHTML = "<p class='status-msg'>Memuat database komik dari GitHub...</p>";
@@ -54,7 +74,7 @@ async function fetchMangaData() {
             displayCatalog(allMangaData);
             populateMangaDropdown(); 
         } else {
-            container.innerHTML = "<p class='status-msg'>Gagal terhubung ke repositori GitHub. Periksa kembali username & nama repo Anda.</p>";
+            container.innerHTML = "<p class='status-msg'>Gagal terhubung ke repositori GitHub. Periksa kredensial / Visibilitas Private.</p>";
         }
     } catch (err) {
         console.error("Error database GitHub:", err);
@@ -62,7 +82,6 @@ async function fetchMangaData() {
     }
 }
 
-// 3. Memasukkan Judul Komik yang Sudah Ada ke Dropdown Form Update secara Otomatis
 function populateMangaDropdown() {
     const selectEl = document.getElementById('existing-manga-select');
     if (!selectEl) return;
@@ -76,7 +95,6 @@ function populateMangaDropdown() {
     });
 }
 
-// 4. Mengatur Visibilitas Form Berdasarkan Mode Tindakan (Buat Baru vs Update)
 function toggleUploadMode(mode) {
     const isUpdate = (mode === 'update');
     document.getElementById('existing-manga-wrapper').style.display = isUpdate ? 'block' : 'none';
@@ -85,7 +103,6 @@ function toggleUploadMode(mode) {
     document.getElementById('cover-picker-wrapper').style.display = isUpdate ? 'none' : 'block';
 }
 
-// 5. Merender Grid Utama Katalog Komik ke Layar Beranda
 function displayCatalog(list) {
     const container = document.getElementById('manga-container');
     container.innerHTML = "";
@@ -110,7 +127,6 @@ function displayCatalog(list) {
     });
 }
 
-// 6. Pengendali Filter Tab Navigasi Atas (Beranda, Manga, Manhua, Manhwa)
 function filterByNav(type, element) {
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     if (element) {
@@ -123,12 +139,10 @@ function filterByNav(type, element) {
     executeCombinedFilter();
 }
 
-// 7. Menerapkan Filter Lanjutan dari Tombol Cari
 function applyAdvancedFilters() {
     executeCombinedFilter();
 }
 
-// 8. Eksekusi Logika Filter Kombinasi dan Pengurutan Judul
 function executeCombinedFilter() {
     const sortVal = document.getElementById('filter-sort').value;
     const typeVal = document.getElementById('filter-type').value;
@@ -156,7 +170,6 @@ function executeCombinedFilter() {
     displayCatalog(filtered);
 }
 
-// 9. Membuka Tampilan Informasi Detail Komik & Daftar Bab Secara Dinamis
 function openMangaDetail(manga) {
     currentSelectedManga = manga;
     navigateTo('detail');
@@ -196,7 +209,6 @@ function openMangaDetail(manga) {
     }
 }
 
-// 9b. Fungsi Baru Pemanggil Halaman Pertama Sebenarnya (Indeks Terakhir dari Array Terbalik)
 function readFirstChapter() {
     if (currentSelectedManga && currentSelectedManga.chapters && currentSelectedManga.chapters.length > 0) {
         let lastIdx = currentSelectedManga.chapters.length - 1; 
@@ -206,14 +218,12 @@ function readFirstChapter() {
     }
 }
 
-// 10. Masuk Ke Halaman Ruang Baca Pembaca (Reader Viewport)
 function startReading(idx) {
     currentMangaPageIdx = idx;
     navigateTo('reader');
     renderReaderContent();
 }
 
-// 11. Merender Gambar Isi Komik & Menampilkan Tombol Bab Otomatis di Akhir Halaman
 function renderReaderContent() {
     const reader = document.getElementById('reader-container');
     const navButtons = document.getElementById('manga-nav-buttons');
@@ -243,9 +253,7 @@ function renderReaderContent() {
         });
         reader.appendChild(wrapper);
 
-        // ==========================================================================
-        // TOMBOL NAVIGASI CHAPTER DI UJUNG BAWAH SCROLL WEBTOON
-        // ==========================================================================
+        // NAVIGASI CHAPTER DI UJUNG BAWAH WEBTOON
         const bottomNavWrapper = document.createElement('div');
         bottomNavWrapper.style.cssText = "padding: 30px 12px; display: flex; flex-direction: column; gap: 12px; align-items: center; background: #0b0b0d;";
 
@@ -324,7 +332,6 @@ function prevPage() {
     } 
 }
 
-// 13. Router Pengendali Blok Tampilan CSS Halaman Platform HTML (Duplikasi Dibersihkan)
 function navigateTo(state) {
     currentPageState = state;
     document.getElementById('catalog-page').style.display = state === 'catalog' ? 'block' : 'none';
@@ -341,7 +348,7 @@ function handleBackAction() {
     }
 }
 
-// 14. LOGIKA ENGINE UPLOAD KE IMGBB & SENTRALISASI COMMIT OTOMATIS GITHUB API
+// 14. LOGIKA ENGINE UPLOAD MULTI-GENRE KE SERVER GITHUB CLOUD
 function initUploadFeature() {
     const uploadBtn = document.getElementById('upload-status-btn');
     const progressText = document.getElementById('upload-progress-text');
@@ -357,11 +364,6 @@ function initUploadFeature() {
             return;
         }
 
-        if (pageFiles.length > 50) {
-            const yakin = confirm(`Anda mendeteksi pemilihan ${pageFiles.length} gambar. Proses pengiriman batch membutuhkan waktu beberapa saat. Tetap lanjutkan?`);
-            if (!yakin) return;
-        }
-
         const apiKey = '85e56ee4e01bcb8c426c77b81f29a68c'; 
         uploadBtn.innerText = "Mengunggah...";
         uploadBtn.disabled = true;
@@ -370,14 +372,22 @@ function initUploadFeature() {
         try {
             let uploadedCoverUrl = "";
             let targetManga = null;
+            let selectedGenres = [];
 
             if (actionType === 'new') {
                 const titleVal = document.getElementById('manga-title-input').value.trim();
                 const synopsisVal = document.getElementById('manga-synopsis-input').value.trim();
                 const coverFile = document.getElementById('imgbb-cover-input').files[0];
 
+                // Membaca seluruh checkbox genre yang dicentang di HP Anda
+                selectedGenres = Array.from(document.querySelectorAll('input[name="contributor-genres"]:checked'))
+                                      .map(cb => cb.value);
+
                 if (!titleVal || !synopsisVal || !coverFile) {
                     throw new Error("Lengkapi data judul, sinopsis, dan gambar cover komik baru!");
+                }
+                if (selectedGenres.length === 0) {
+                    throw new Error("Pilih minimal 1 genre dengan mencentang kotak pilihan!");
                 }
 
                 progressText.innerText = "Status: Mengunggah cover komik...";
@@ -410,12 +420,12 @@ function initUploadFeature() {
                     const pData = await pRes.json();
                     if (pData.success) uploadedPageUrls.push(pData.data.url);
                 } catch (e) {
-                    console.warn(`Melewati halaman ke-${count} karena kendala jaringan, berlanjut...`);
+                    console.warn(`Melewati halaman ke-${count} karena kendala jaringan...`);
                 }
                 count++;
             }
 
-            if (uploadedPageUrls.length === 0) throw new Error("Gagal memproses seluruh lembaran halaman komik.");
+            if (uploadedPageUrls.length === 0) throw new Error("Gagal memproses lembaran halaman komik.");
 
             const newChapterObject = {
                 "chapter_number": chNumVal,
@@ -428,7 +438,7 @@ function initUploadFeature() {
                     "title": document.getElementById('manga-title-input').value.trim(),
                     "status": "Ongoing",
                     "type": document.getElementById('manga-type-input').value,
-                    "genres": [document.getElementById('manga-genre-input').value],
+                    "genres": selectedGenres, // Array berisi banyak genre yang sudah dicentang
                     "synopsis": document.getElementById('manga-synopsis-input').value.trim(),
                     "cover": uploadedCoverUrl,
                     "chapters": [newChapterObject]
@@ -465,26 +475,28 @@ function initUploadFeature() {
             });
 
             if (!pushResponse.ok) {
-                throw new Error("Gambar terunggah ke ImgBB, namun server GitHub menolak sinkronisasi perubahan JSON.");
+                throw new Error("Database gagal disinkronkan ke Cloud GitHub.");
             }
 
-            alert("Sukses! Komik dan bab baru berhasil disimpan permanen di Cloud GitHub!");
+            alert("Sukses! Judul komik beserta daftar multi-genre berhasil diterbitkan!");
 
             displayCatalog(allMangaData);
             populateMangaDropdown();
 
+            // Reset Form dan Hilangkan Seluruh Centangan lama
             document.getElementById('manga-title-input').value = "";
             document.getElementById('chapter-num-input').value = "";
             document.getElementById('manga-synopsis-input').value = "";
             document.getElementById('imgbb-cover-input').value = "";
             document.getElementById('imgbb-pages-input').value = "";
+            document.querySelectorAll('input[name="contributor-genres"]').forEach(cb => cb.checked = false);
             
-            progressText.innerText = "Status: Sukses Diterbitkan & Permanen!";
+            progressText.innerText = "Status: Sukses Diterbitkan!";
             progressText.style.color = "#10b981";
 
         } catch (error) {
             alert(`Gagal: ${error.message}`);
-            progressText.innerText = "Status: Terjadi kesalahan.";
+            progressText.innerText = "Status: Kesalahan pengiriman.";
             progressText.style.color = "#ef4444";
         } finally {
             uploadBtn.innerText = "Terbitkan Update";

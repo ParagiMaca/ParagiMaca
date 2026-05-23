@@ -3,14 +3,13 @@ let currentSelectedManga = null;
 let currentReaderMode = "webtoon";
 let currentMangaPageIdx = 0;
 let currentPageState = "catalog";
-let currentNavType = "all"; // Menyimpan state tab aktif (all, Manga, Manhua, Manhwa)
+let currentNavType = "all"; 
 
 window.onload = function() {
     fetchMangaData();
-    initUploadFeature(); // Inisialisasi fitur unggah gambar otomatis
+    initUploadFeature(); // Menghidupkan tombol upload ImgBB
 };
 
-// 1. Mengambil data komik dari file JSON
 async function fetchMangaData() {
     const container = document.getElementById('manga-container');
     container.innerHTML = "<p class='status-msg'>Memuat database komik...</p>";
@@ -20,7 +19,6 @@ async function fetchMangaData() {
         if (response.ok) {
             const rawData = await response.json();
             
-            // SOLUSI FILTER: Berikan nilai default jika properti tidak ada di JSON Anda
             allMangaData = rawData.map(m => {
                 let detectedType = "Manhwa"; 
                 if (m.title.toLowerCase().includes("manga")) detectedType = "Manga";
@@ -34,7 +32,6 @@ async function fetchMangaData() {
                 };
             });
             
-            // Tampilkan semua data di awal
             displayCatalog(allMangaData);
         } else {
             container.innerHTML = "<p class='status-msg'>Gagal membaca file manga_data.json.</p>";
@@ -45,7 +42,6 @@ async function fetchMangaData() {
     }
 }
 
-// 2. Menampilkan daftar komik ke dalam Grid
 function displayCatalog(list) {
     const container = document.getElementById('manga-container');
     container.innerHTML = "";
@@ -70,7 +66,6 @@ function displayCatalog(list) {
     });
 }
 
-// 3. Navigasi Filter lewat Tab Menu Atas (Beranda, Manga, Manhua, Manhwa)
 function filterByNav(type, element) {
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     if (element) {
@@ -83,7 +78,6 @@ function filterByNav(type, element) {
     executeCombinedFilter();
 }
 
-// 4. Menjalankan penyaringan gabungan antara Tab Atas + Dropdown Box
 function applyAdvancedFilters() {
     executeCombinedFilter();
 }
@@ -117,7 +111,6 @@ function executeCombinedFilter() {
     displayCatalog(filtered);
 }
 
-// 5. Membuka Halaman Detail Komik (Sinopsis & Tombol Baca)
 function openMangaDetail(manga) {
     currentSelectedManga = manga;
     navigateTo('detail');
@@ -140,7 +133,6 @@ function openMangaDetail(manga) {
     const chapterContainer = document.getElementById('chapter-list-container');
     chapterContainer.innerHTML = "";
     
-    // Validasi apabila komik baru belum memiliki halaman bacaan (pages)
     if (manga.chapters && manga.chapters.length > 0) {
         manga.chapters.forEach((ch, idx) => {
             const chItem = document.createElement('div');
@@ -162,14 +154,12 @@ function openMangaDetail(manga) {
     }
 }
 
-// 6. Masuk ke halaman pembaca gambar komik
 function startReading(idx) {
     currentMangaPageIdx = idx;
     navigateTo('reader');
     renderReaderContent();
 }
 
-// 7. Merender Gambar Komik dengan Optimasi Kecepatan (Lazy Loading)
 function renderReaderContent() {
     const reader = document.getElementById('reader-container');
     const navButtons = document.getElementById('manga-nav-buttons');
@@ -177,7 +167,6 @@ function renderReaderContent() {
 
     if (!currentSelectedManga) return;
 
-    // Proteksi jika data halaman kosong (untuk komik tiruan baru)
     const pagesToRender = currentSelectedManga.pages || [currentSelectedManga.cover];
 
     if (currentReaderMode === "webtoon") {
@@ -226,13 +215,6 @@ function nextPage() {
     } 
 }
 
-function prevPage() { 
-    if (currentMangaPageIdx > 0) { 
-        currentMangaPageIdx--; 
-        renderReaderContent(); 
-    } 
-}
-
 // 8. Sistem Router Pengendali Tampilan Halaman
 function navigateTo(state) {
     currentPageState = state;
@@ -250,7 +232,14 @@ function handleBackAction() {
     }
 }
 
-// 9. Fungsi Pengunggah Gambar Utama (ImgBB API) Tanpa Perlu Login
+function prevPage() { 
+    if (currentMangaPageIdx > 0) { 
+        currentMangaPageIdx--; 
+        renderReaderContent(); 
+    } 
+}
+
+// 9. Integrasi ImgBB API
 function initUploadFeature() {
     const uploadBtn = document.getElementById('upload-status-btn');
     if (!uploadBtn) return;
@@ -267,7 +256,7 @@ function initUploadFeature() {
         const apiKey = '85e56ee4e01bcb8c426c77b81f29a68c'; 
         
         uploadBtn.innerText = "Mengunggah...";
-        uploadBtn.style.background = "#eab308";
+        uploadBtn.style.backgroundColor = "#eab308";
         uploadBtn.disabled = true;
 
         const formData = new FormData();
@@ -309,7 +298,7 @@ function initUploadFeature() {
             alert("Gagal terhubung dengan server ImgBB.");
         } finally {
             uploadBtn.innerText = "Upload";
-            uploadBtn.style.background = "#10b981";
+            uploadBtn.style.backgroundColor = "#10b981";
             uploadBtn.disabled = false;
         }
     });

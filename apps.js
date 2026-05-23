@@ -1,7 +1,15 @@
+// Konfigurasi Cloud Database GitHub API Anda
+const GITHUB_CONFIG = {
+    username: "ParagiMaca",           
+    repo: "ParagiMaca",               
+    path: "manga_data.json",          
+    token: "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" 
+};
+
 let allMangaData = [];
 let currentSelectedManga = null;
 let currentReaderMode = "webtoon";
-let currentMangaPageIdx = 0; // Menyimpan indeks array chapter yang sedang dibaca
+let currentMangaPageIdx = 0; 
 let currentPageState = "catalog";
 let currentNavType = "all"; 
 
@@ -11,17 +19,23 @@ window.onload = function() {
     initUploadFeature(); 
 };
 
-// 2. Mengambil Data Komik Mendalam dari File JSON
+// 2. Mengambil Data Komik Secara Live dari Cloud Repositori GitHub (Mencegah Cache)
 async function fetchMangaData() {
     const container = document.getElementById('manga-container');
-    container.innerHTML = "<p class='status-msg'>Memuat database komik...</p>";
+    container.innerHTML = "<p class='status-msg'>Memuat database komik dari GitHub...</p>";
     
     try {
-        const response = await fetch('manga_data.json');
+        const url = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}?timestamp=${new Date().getTime()}`;
+        
+        const response = await fetch(url, {
+            headers: { "Authorization": `token ${GITHUB_CONFIG.token}` }
+        });
+
         if (response.ok) {
-            const rawData = await response.json();
+            const fileData = await response.json();
+            const decodedContent = decodeURIComponent(escape(atob(fileData.content)));
+            const rawData = JSON.parse(decodedContent);
             
-            // Memberikan proteksi nilai default jika properti tertentu belum terdefinisi di JSON
             allMangaData = rawData.map(m => {
                 let detectedType = "Manhwa"; 
                 if (m.title.toLowerCase().includes("manga")) detectedType = "Manga";
@@ -32,19 +46,19 @@ async function fetchMangaData() {
                     type: m.type || detectedType, 
                     status: m.status || "Ongoing",
                     genres: m.genres || ["Action"],
-                    synopsis: m.synopsis || "Kisah seru petualangan yang tidak boleh Anda lewatkan begitu saja di platform ParagiMaca.",
+                    synopsis: m.synopsis || "Kisah seru petualangan di platform ParagiMaca.",
                     chapters: m.chapters || []
                 };
             });
             
             displayCatalog(allMangaData);
-            populateMangaDropdown(); // Mengisi list pilihan komik lama ke form update
+            populateMangaDropdown(); 
         } else {
-            container.innerHTML = "<p class='status-msg'>Gagal membaca file manga_data.json.</p>";
+            container.innerHTML = "<p class='status-msg'>Gagal terhubung ke repositori GitHub. Periksa kembali username & nama repo Anda.</p>";
         }
     } catch (err) {
-        console.error("Error file json:", err);
-        container.innerHTML = "<p class='status-msg'>Gagal memuat katalog komik.</p>";
+        console.error("Error database GitHub:", err);
+        container.innerHTML = "<p class='status-msg'>Gagal memuat katalog komik online.</p>";
     }
 }
 
@@ -62,7 +76,7 @@ function populateMangaDropdown() {
     });
 }
 
-// 4. Mengatur Animasi/Visibilitas Form Berdasarkan Mode Tindakan (Buat Baru vs Update)
+// 4. Mengatur Visibilitas Form Berdasarkan Mode Tindakan (Buat Baru vs Update)
 function toggleUploadMode(mode) {
     const isUpdate = (mode === 'update');
     document.getElementById('existing-manga-wrapper').style.display = isUpdate ? 'block' : 'none';
@@ -166,12 +180,10 @@ function openMangaDetail(manga) {
     const chapterContainer = document.getElementById('chapter-list-container');
     chapterContainer.innerHTML = "";
     
-    // Perbaikan: Merender daftar bab berdasarkan indeks asli dari file JSON
     if (manga.chapters && manga.chapters.length > 0) {
         manga.chapters.forEach((ch, idx) => {
             const chItem = document.createElement('div');
             chItem.className = "chapter-item";
-            // idx dikirim utuh agar startReading membuka data bab yang tepat
             chItem.onclick = () => startReading(idx);
             chItem.innerHTML = `
                 <span>Chapter ${ch.chapter_number}</span>
@@ -181,6 +193,16 @@ function openMangaDetail(manga) {
         });
     } else {
         chapterContainer.innerHTML = `<p class='status-msg' style='padding:10px;'>Belum ada chapter terunggah.</p>`;
+    }
+}
+
+// 9b. Fungsi Baru Pemanggil Halaman Pertama Sebenarnya (Indeks Terakhir dari Array Terbalik)
+function readFirstChapter() {
+    if (currentSelectedManga && currentSelectedManga.chapters && currentSelectedManga.chapters.length > 0) {
+        let lastIdx = currentSelectedManga.chapters.length - 1; 
+        startReading(lastIdx);
+    } else {
+        alert("Belum ada chapter yang tersedia untuk komik ini.");
     }
 }
 
@@ -199,12 +221,10 @@ function renderReaderContent() {
 
     if (!currentSelectedManga) return;
 
-    // Ambil data array halaman secara akurat dari dalam objek bab yang aktif
     let pagesToRender = [];
     if (currentSelectedManga.chapters && currentSelectedManga.chapters[currentMangaPageIdx]) {
         pagesToRender = currentSelectedManga.chapters[currentMangaPageIdx].pages || [];
     } else {
-        // Fallback pengaman jika array halaman kosong
         pagesToRender = [currentSelectedManga.cover];
     }
 
@@ -213,7 +233,6 @@ function renderReaderContent() {
         const wrapper = document.createElement('div');
         wrapper.className = "webtoon-stream-clean";
 
-        // Render aliran gambar vertikal
         pagesToRender.forEach((p, index) => {
             const img = document.createElement('img');
             img.loading = "lazy";
@@ -230,9 +249,6 @@ function renderReaderContent() {
         const bottomNavWrapper = document.createElement('div');
         bottomNavWrapper.style.cssText = "padding: 30px 12px; display: flex; flex-direction: column; gap: 12px; align-items: center; background: #0b0b0d;";
 
-        // Karena data chapter baru di-unshift ke indeks 0, maka:
-        // - Bab berikutnya (angka lebih tinggi) ada di urutan indeks SEBELUMNYA (currentMangaPageIdx - 1)
-        // - Bab sebelumnya (angka lebih kecil) ada di urutan indeks SESUDAHNYA (currentMangaPageIdx + 1)
         const hasNextChapter = currentMangaPageIdx > 0;
         const hasPrevChapter = currentSelectedManga.chapters && currentMangaPageIdx < currentSelectedManga.chapters.length - 1;
 
@@ -263,7 +279,6 @@ function renderReaderContent() {
         reader.appendChild(bottomNavWrapper);
 
     } else {
-        // Mode Per Halaman (Manga Tradisional Klik Kanan/Kiri)
         navButtons.style.display = "flex";
         document.getElementById('page-indicator').innerText = `${currentMangaPageIdx + 1} / ${pagesToRender.length}`;
         
@@ -277,17 +292,14 @@ function renderReaderContent() {
         reader.appendChild(wrapper);
     }
     
-    // Geser kembali layar secara otomatis ke koordinat paling atas
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 11b. Eksekutor Perpindahan Bab Tanpa Reload Page
 function navigateToNextChapter(targetChapterIdx) {
     currentMangaPageIdx = targetChapterIdx;
     renderReaderContent();
 }
 
-// 12. Kontrol Navigasi Halaman Pembaca Khusus Mode Per Halaman (Manga Style)
 function switchReaderMode(mode) { 
     currentReaderMode = mode; 
     currentMangaPageIdx = 0;
@@ -312,7 +324,7 @@ function prevPage() {
     } 
 }
 
-// 13. Router Pengendali Blok Tampilan CSS Halaman Platform HTML
+// 13. Router Pengendali Blok Tampilan CSS Halaman Platform HTML (Duplikasi Dibersihkan)
 function navigateTo(state) {
     currentPageState = state;
     document.getElementById('catalog-page').style.display = state === 'catalog' ? 'block' : 'none';
@@ -329,7 +341,7 @@ function handleBackAction() {
     }
 }
 
-// 14. LOGIKA ENGINE UPLOAD KE IMGBB (DUAL MODE + CHRONOLOGICAL PEN-SEQUENTIAL)
+// 14. LOGIKA ENGINE UPLOAD KE IMGBB & SENTRALISASI COMMIT OTOMATIS GITHUB API
 function initUploadFeature() {
     const uploadBtn = document.getElementById('upload-status-btn');
     const progressText = document.getElementById('upload-progress-text');
@@ -345,7 +357,6 @@ function initUploadFeature() {
             return;
         }
 
-        // Warning konfirmasi jika mendeteksi unggahan dalam jumlah raksasa (>50 lembar)
         if (pageFiles.length > 50) {
             const yakin = confirm(`Anda mendeteksi pemilihan ${pageFiles.length} gambar. Proses pengiriman batch membutuhkan waktu beberapa saat. Tetap lanjutkan?`);
             if (!yakin) return;
@@ -361,7 +372,6 @@ function initUploadFeature() {
             let targetManga = null;
 
             if (actionType === 'new') {
-                // JALUR PROSES KOMIK BARU SEGARR
                 const titleVal = document.getElementById('manga-title-input').value.trim();
                 const synopsisVal = document.getElementById('manga-synopsis-input').value.trim();
                 const coverFile = document.getElementById('imgbb-cover-input').files[0];
@@ -378,19 +388,16 @@ function initUploadFeature() {
                 if (!coverData.success) throw new Error("Gagal mengunggah foto cover ke server.");
                 uploadedCoverUrl = coverData.data.url;
             } else {
-                // JALUR PROSES UPDATE CHAPTER KOMIK LAWAS
                 const selectedId = document.getElementById('existing-manga-select').value;
                 targetManga = allMangaData.find(m => m.id === selectedId);
                 if (!targetManga) throw new Error("Komik target tidak ditemukan!");
             }
 
-            // PROSES URUT BATCH FILE BERDASARKAN ALFANUMERIK NAMA ASLI FILE
             const sortedFiles = Array.from(pageFiles).sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
             let uploadedPageUrls = [];
             let count = 1;
             const total = sortedFiles.length;
 
-            // Pengiriman Antrean Berurutan (Sequential Loop) menghindari Crash Memory Browser HP
             for (const singleFile of sortedFiles) {
                 const percent = Math.round((count / total) * 100);
                 progressText.innerText = `Status: Memproses halaman (${count}/${total}) - ${percent}%`;
@@ -403,7 +410,7 @@ function initUploadFeature() {
                     const pData = await pRes.json();
                     if (pData.success) uploadedPageUrls.push(pData.data.url);
                 } catch (e) {
-                    console.warn(`Melewati halaman ke-${count} karena masalah kendala jaringan, berlanjut...`);
+                    console.warn(`Melewati halaman ke-${count} karena kendala jaringan, berlanjut...`);
                 }
                 count++;
             }
@@ -416,7 +423,6 @@ function initUploadFeature() {
             };
 
             if (actionType === 'new') {
-                // Masukkan objek sebagai komik baru di baris katalog paling atas
                 const finalMangaObject = {
                     "id": String(allMangaData.length + 1),
                     "title": document.getElementById('manga-title-input').value.trim(),
@@ -428,26 +434,52 @@ function initUploadFeature() {
                     "chapters": [newChapterObject]
                 };
                 allMangaData.unshift(finalMangaObject);
-                alert(`Sukses menerbitkan komik baru beserta Chapter ${chNumVal}!`);
             } else {
-                // Tambahkan bab baru ke urutan atas (index 0) pada komik lama yang dipilih
                 if (!targetManga.chapters) targetManga.chapters = [];
                 targetManga.chapters.unshift(newChapterObject); 
-                alert(`Sukses menambahkan Chapter ${chNumVal} ke dalam komik "${targetManga.title}"!`);
             }
 
-            // Perbarui visualisasi komponen DOM web tanpa reload browser
+            progressText.innerText = "Status: Menyinkronkan database ke GitHub...";
+
+            const getUrl = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
+            const fileMetaRes = await fetch(getUrl, {
+                headers: { "Authorization": `token ${GITHUB_CONFIG.token}` }
+            });
+            const fileMeta = await fileMetaRes.json();
+            const currentSha = fileMeta.sha;
+
+            const rawJsonText = JSON.stringify(allMangaData, null, 2);
+            const encodedContent = btoa(unescape(encodeURIComponent(rawJsonText)));
+
+            const pushResponse = await fetch(getUrl, {
+                method: 'PUT',
+                headers: {
+                    "Authorization": `token ${GITHUB_CONFIG.token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: `Kontributor Update: Chapter ${chNumVal}`,
+                    content: encodedContent,
+                    sha: currentSha
+                })
+            });
+
+            if (!pushResponse.ok) {
+                throw new Error("Gambar terunggah ke ImgBB, namun server GitHub menolak sinkronisasi perubahan JSON.");
+            }
+
+            alert("Sukses! Komik dan bab baru berhasil disimpan permanen di Cloud GitHub!");
+
             displayCatalog(allMangaData);
             populateMangaDropdown();
 
-            // Pembersihan form input menjadi kosong kembali
             document.getElementById('manga-title-input').value = "";
             document.getElementById('chapter-num-input').value = "";
             document.getElementById('manga-synopsis-input').value = "";
             document.getElementById('imgbb-cover-input').value = "";
             document.getElementById('imgbb-pages-input').value = "";
             
-            progressText.innerText = "Status: Sukses Diterbitkan!";
+            progressText.innerText = "Status: Sukses Diterbitkan & Permanen!";
             progressText.style.color = "#10b981";
 
         } catch (error) {

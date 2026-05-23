@@ -17,7 +17,7 @@ let currentNavType = "all";
 window.onload = function() {
     fetchMangaData();
     initUploadFeature(); 
-    initGenreCheckboxes(); // Menghidupkan list centangan genre di HP
+    initGenreCheckboxes(); 
 };
 
 // 1b. Mengisi Kotak Pilihan Kontributor Berdasarkan Master Dropdown Filter Sebelah Atas
@@ -25,7 +25,6 @@ function initGenreCheckboxes() {
     const container = document.getElementById('manga-genre-checkbox-container');
     if (!container) return;
     
-    // Membaca teks opsi genre dari HTML secara dinamis
     const genreOptions = Array.from(document.querySelectorAll('#filter-genre option'))
                               .map(opt => opt.value)
                               .filter(val => val !== 'all');
@@ -57,9 +56,11 @@ async function fetchMangaData() {
             const rawData = JSON.parse(decodedContent);
             
             allMangaData = rawData.map(m => {
+                // LOGIKA DETEKSI OTOMATIS BERDASARKAN KEYWORD JUDUL (DITAMBAH DOUJINSHI)
                 let detectedType = "Manhwa"; 
                 if (m.title.toLowerCase().includes("manga")) detectedType = "Manga";
                 if (m.title.toLowerCase().includes("manhua")) detectedType = "Manhua";
+                if (m.title.toLowerCase().includes("doujinshi") || m.title.toLowerCase().includes("doujin")) detectedType = "Doujinshi";
 
                 return {
                     ...m,
@@ -253,7 +254,6 @@ function renderReaderContent() {
         });
         reader.appendChild(wrapper);
 
-        // NAVIGASI CHAPTER DI UJUNG BAWAH WEBTOON
         const bottomNavWrapper = document.createElement('div');
         bottomNavWrapper.style.cssText = "padding: 30px 12px; display: flex; flex-direction: column; gap: 12px; align-items: center; background: #0b0b0d;";
 
@@ -325,29 +325,6 @@ function nextPage() {
     } 
 }
 
-function prevPage() { 
-    if (currentMangaPageIdx > 0) { 
-        currentMangaPageIdx--; 
-        renderReaderContent(); 
-    } 
-}
-
-function navigateTo(state) {
-    currentPageState = state;
-    document.getElementById('catalog-page').style.display = state === 'catalog' ? 'block' : 'none';
-    document.getElementById('detail-page').style.display = state === 'detail' ? 'block' : 'none';
-    document.getElementById('reader-page').style.display = state === 'reader' ? 'block' : 'none';
-    document.getElementById('back-btn').style.display = state === 'catalog' ? 'none' : 'block';
-}
-
-function handleBackAction() {
-    if (currentPageState === 'reader') navigateTo('detail');
-    else if (currentPageState === 'detail') {
-        navigateTo('catalog');
-        executeCombinedFilter(); 
-    }
-}
-
 // 14. LOGIKA ENGINE UPLOAD MULTI-GENRE KE SERVER GITHUB CLOUD
 function initUploadFeature() {
     const uploadBtn = document.getElementById('upload-status-btn');
@@ -379,7 +356,6 @@ function initUploadFeature() {
                 const synopsisVal = document.getElementById('manga-synopsis-input').value.trim();
                 const coverFile = document.getElementById('imgbb-cover-input').files[0];
 
-                // Membaca seluruh checkbox genre yang dicentang di HP Anda
                 selectedGenres = Array.from(document.querySelectorAll('input[name="contributor-genres"]:checked'))
                                       .map(cb => cb.value);
 
@@ -438,7 +414,7 @@ function initUploadFeature() {
                     "title": document.getElementById('manga-title-input').value.trim(),
                     "status": "Ongoing",
                     "type": document.getElementById('manga-type-input').value,
-                    "genres": selectedGenres, // Array berisi banyak genre yang sudah dicentang
+                    "genres": selectedGenres, 
                     "synopsis": document.getElementById('manga-synopsis-input').value.trim(),
                     "cover": uploadedCoverUrl,
                     "chapters": [newChapterObject]
@@ -478,12 +454,11 @@ function initUploadFeature() {
                 throw new Error("Database gagal disinkronkan ke Cloud GitHub.");
             }
 
-            alert("Sukses! Judul komik beserta daftar multi-genre berhasil diterbitkan!");
+            alert("Sukses! Judul komik Doujinshi berhasil diterbitkan!");
 
             displayCatalog(allMangaData);
             populateMangaDropdown();
 
-            // Reset Form dan Hilangkan Seluruh Centangan lama
             document.getElementById('manga-title-input').value = "";
             document.getElementById('chapter-num-input').value = "";
             document.getElementById('manga-synopsis-input').value = "";
@@ -503,4 +478,20 @@ function initUploadFeature() {
             uploadBtn.disabled = false;
         }
     });
+}
+
+function navigateTo(state) {
+    currentPageState = state;
+    document.getElementById('catalog-page').style.display = state === 'catalog' ? 'block' : 'none';
+    document.getElementById('detail-page').style.display = state === 'detail' ? 'block' : 'none';
+    document.getElementById('reader-page').style.display = state === 'reader' ? 'block' : 'none';
+    document.getElementById('back-btn').style.display = state === 'catalog' ? 'none' : 'block';
+}
+
+function handleBackAction() {
+    if (currentPageState === 'reader') navigateTo('detail');
+    else if (currentPageState === 'detail') {
+        navigateTo('catalog');
+        executeCombinedFilter(); 
+    }
 }

@@ -315,14 +315,10 @@
             <div class="editor-header-box">
                 <h2 class="upload-section-title">Panel Kontributor: Tambah / Update Bab Komik</h2>
                 <p class="editor-sub-desc">Publikasikan karya komik terbaru Anda langsung ke database cloud server ParagiMaca.</p>
+                <a href="countdown_github.html" target="_blank" style="display: inline-block; margin-top: 8px; font-size: 0.75rem; color: #3b82f6; text-decoration: underline; font-weight: 650;">
+                    🔑 Periksa Sisa Waktu Aktif Token GitHub (89 Hari Lagi)
+                </a>
             </div>
-<div class="editor-header-box">
-    <h2 class="upload-section-title">Panel Kontributor: Tambah / Update Bab Komik</h2>
-    <p class="editor-sub-desc">Publikasikan karya komik terbaru Anda langsung ke database cloud server ParagiMaca.</p>
-    <a href="countdown_github.html" target="_blank" style="display: inline-block; margin-top: 8px; font-size: 0.75rem; color: #3b82f6; text-decoration: underline; font-weight: 650;">
-        🔑 Periksa Sisa Waktu Aktif Token GitHub (89 Hari Lagi)
-    </a>
-</div>
 
             <div class="upload-section-box full-page-card">
                 <div class="form-grid-layout" style="margin-bottom: 12px;">
@@ -428,61 +424,91 @@
                 <span class="close-modal-btn" onclick="closeEditPostModal()">&times;</span>
             </div>
             <div class="modal-body">
-                <div class="form-input-group" style="margin-bottom: 12px;">
-                    <label class="field-label">Judul Komik</label>
-                    <input type="text" id="edit-manga-title" placeholder="Ubah judul...">
-                </div>
-                <div class="form-grid-layout" style="margin-bottom: 12px;">
-                    <div class="form-input-group">
-                        <label class="field-label">Tipe</label>
-                        <select id="edit-manga-type">
-                            <option value="Manga">Manga</option>
-                            <option value="Manhua">Manhua</option>
-                            <option value="Manhwa">Manhwa</option>
-                            <option value="Doujinshi">Doujinshi</option>
-                        </select>
-                    </div>
-                    <div class="form-input-group">
-                        <label class="field-label">Status</label>
-                        <select id="edit-manga-status">
-                            <option value="Ongoing">Ongoing</option>
-                            <option value="Tamat">Tamat</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-input-group" style="margin-bottom: 12px;">
-                    <label class="field-label">Tautan Teks Gambar Cover</label>
-                    <input type="text" id="edit-manga-cover" placeholder="Masukkan URL cover baru...">
-                </div>
-                <div class="form-input-group" style="margin-bottom: 12px;">
-                    <label class="field-label">Sinopsis / Ringkasan Cerita</label>
-                    <textarea id="edit-manga-synopsis" rows="4" placeholder="Ubah sinopsis cerita..."></textarea>
+                <!-- TABS UNTUK MEMBEDAKAN EDIT POST vs UNGGUH CHAPTER BARU DI SUNTINGAN -->
+                <div class="modal-tabs">
+                    <button class="modal-tab-btn active" id="tab-edit-meta" onclick="switchModalTab('meta')">ℹ️ Sunting Info Utama</button>
+                    <button class="modal-tab-btn" id="tab-upload-chap" onclick="switchModalTab('upload')">➕ Unggah Bab Baru</button>
                 </div>
 
-                <div class="form-input-group" style="margin-bottom: 16px;">
-                    <label class="field-label">Genre Komik</label>
-                    <div id="edit-genre-checkbox-container" class="genre-grid-checkbox">
+                <!-- KONTEN TAB 1: SUNTING METADATA UTAMA -->
+                <div id="modal-tab-content-meta">
+                    <div class="form-input-group" style="margin-bottom: 12px;">
+                        <label class="field-label">Judul Komik</label>
+                        <input type="text" id="edit-manga-title" placeholder="Ubah judul...">
+                    </div>
+                    <div class="form-grid-layout" style="margin-bottom: 12px;">
+                        <div class="form-input-group">
+                            <label class="field-label">Tipe</label>
+                            <select id="edit-manga-type">
+                                <option value="Manga">Manga</option>
+                                <option value="Manhua">Manhua</option>
+                                <option value="Manhwa">Manhwa</option>
+                                <option value="Doujinshi">Doujinshi</option>
+                            </select>
+                        </div>
+                        <div class="form-input-group">
+                            <label class="field-label">Status</label>
+                            <select id="edit-manga-status">
+                                <option value="Ongoing">Ongoing</option>
+                                <option value="Tamat">Tamat</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-input-group" style="margin-bottom: 12px;">
+                        <label class="field-label">Tautan Teks Gambar Cover</label>
+                        <input type="text" id="edit-manga-cover" placeholder="Masukkan URL cover baru...">
+                    </div>
+                    <div class="form-input-group" style="margin-bottom: 12px;">
+                        <label class="field-label">Sinopsis / Ringkasan Cerita</label>
+                        <textarea id="edit-manga-synopsis" rows="4" placeholder="Ubah sinopsis cerita..."></textarea>
+                    </div>
+
+                    <div class="form-input-group" style="margin-bottom: 16px;">
+                        <label class="field-label">Genre Komik</label>
+                        <div id="edit-genre-checkbox-container" class="genre-grid-checkbox">
+                        </div>
+                    </div>
+
+                    <div class="edit-chapter-list-section">
+                        <div class="section-sub-header">
+                            <h4>Kelola Daftar Bab & Gambar (Mencegah Link Rusak)</h4>
+                            <select id="edit-chapter-select" onchange="loadChapterPagesToEditor(this.value)" style="background: #202024; color: #fff; padding: 4px; border-radius: 4px; font-size: 0.8rem; border:1px solid #27272a;">
+                                <option value="">Pilih Chapter...</option>
+                            </select>
+                        </div>
+                        
+                        <div id="editor-chapter-pages-container" style="display:none; margin-top:10px;">
+                            <p style="font-size: 0.75rem; color:#a1a1aa; margin-bottom:8px;">
+                                Anda dapat mengedit langsung tautan gambar di bawah ini jika terdapat gambar rusak, menghapusnya, atau menambahkan gambar halaman baru secara berurutan.
+                            </p>
+                            <div id="pages-edit-list" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; padding:6px; background:#111; border-radius:5px; border:1px solid #27272a;">
+                            </div>
+                            <div style="margin-top: 8px; display:flex; gap:6px;">
+                                <button type="button" class="action-light-btn" onclick="addNewPageUrlRow()">➕ Tambah Baris Halaman</button>
+                                <button type="button" class="action-light-btn danger" onclick="deleteCurrentChapter()">🗑️ Hapus Bab Ini</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="edit-chapter-list-section">
-                    <div class="section-sub-header">
-                        <h4>Kelola Daftar Bab & Gambar (Mencegah Link Rusak)</h4>
-                        <select id="edit-chapter-select" onchange="loadChapterPagesToEditor(this.value)" style="background: #202024; color: #fff; padding: 4px; border-radius: 4px; font-size: 0.8rem; border:1px solid #27272a;">
-                            <option value="">Pilih Chapter...</option>
-                        </select>
-                    </div>
-                    
-                    <div id="editor-chapter-pages-container" style="display:none; margin-top:10px;">
-                        <p style="font-size: 0.75rem; color:#a1a1aa; margin-bottom:8px;">
-                            Anda dapat mengedit langsung tautan gambar di bawah ini jika terdapat gambar rusak, menghapusnya, atau menambahkan gambar halaman baru secara berurutan.
-                        </p>
-                        <div id="pages-edit-list" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; padding:6px; background:#111; border-radius:5px; border:1px solid #27272a;">
+                <!-- KONTEN TAB 2: UNGGUH CHAPTER BARU LANGSUNG DARI MODAL -->
+                <div id="modal-tab-content-upload" style="display: none;">
+                    <div class="upload-subpanel-box" style="background: #202024; padding: 12px; border-radius: 6px; border: 1px solid #27272a;">
+                        <h4 style="font-size: 0.85rem; color: #3b82f6; margin-bottom: 10px;">Unggah Chapter Baru untuk Komik Ini</h4>
+                        
+                        <div class="form-input-group" style="margin-bottom: 12px; max-width: 200px;">
+                            <label class="field-label">Nomor Bab/Chapter Baru</label>
+                            <input type="text" id="modal-chapter-num-input" placeholder="Contoh: 02, 03, 03.5">
                         </div>
-                        <div style="margin-top: 8px; display:flex; gap:6px;">
-                            <button type="button" class="action-light-btn" onclick="addNewPageUrlRow()">➕ Tambah Baris Halaman</button>
-                            <button type="button" class="action-light-btn danger" onclick="deleteCurrentChapter()">🗑️ Hapus Bab Ini</button>
+
+                        <div class="file-picker-block" style="margin-bottom: 14px;">
+                            <span class="field-label" style="margin-bottom: 6px;">Gambar Isi Bab (Bisa Banyak File):</span>
+                            <input type="file" id="modal-imgbb-pages-input" accept="image/*" multiple style="background: #18181c; color:#fff; border: 1px solid #27272a; padding: 6px; border-radius:4px; font-size: 0.78rem;">
                         </div>
+
+                        <button id="modal-chapter-upload-btn" class="primary-btn" onclick="uploadNewChapterFromModal()" style="background: #10b981; width: 100%; padding: 10px; font-weight: bold;">
+                            🚀 Terbitkan Bab Baru
+                        </button>
                     </div>
                 </div>
             </div>
@@ -513,7 +539,12 @@
         <main id="reader-container"></main>
     </div>
 
+    <!-- TOMBOL MENGAMBANG UNTUK UP DAN DOWN DI HALAMAN READER -->
+    <div id="floating-scroller-controls" class="floating-controls" style="display: none;">
+        <button class="scroll-float-btn" onclick="scrollToExtreme('up')" title="Ke Atas (Awal Gambar)">▲ Atas</button>
+        <button class="scroll-float-btn" onclick="scrollToExtreme('down')" title="Ke Bawah (Akhir Gambar)">▼ Bawah</button>
+    </div>
+
     <script src="apps.js"></script>
 </body>
 </html>
-

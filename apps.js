@@ -1,9 +1,9 @@
 // Konfigurasi Cloud Database GitHub API Anda
 const GITHUB_CONFIG = {
     username: "ParagiMaca",           
-    repo: "ParagiMaca26mei",               
+    repo: "ParagiMaca2605",               
     path: "manga_data.json",          
-    token: "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" // Ingat gantilah token ini jika di-revoke github
+    token: "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" // Ingat gantilah token ini jika di-revoke github
 };
 
 let allMangaData = [];

@@ -3,7 +3,7 @@ const GITHUB_CONFIG = {
     username: "ParagiMaca",           
     repo: "ParagiMaca",               
     path: "manga_data.json",          
-    token: "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" // Ingat gantilah token ini jika di-revoke github
+    token: "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" // Ingat gantilah token ini jika di-revoke github
 };
 
 let allMangaData = [];

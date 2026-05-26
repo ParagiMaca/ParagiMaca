@@ -4,19 +4,862 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParagiMaca - Katalog Komik Modern</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- JSZip Library untuk fitur Download Chapter -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+
+        body {
+            background-color: #0f0f12;
+            color: #e4e4e7;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* HEADER STYLE */
+        .viewer-header {
+            background: #18181c;
+            padding: 12px 16px; 
+            border-bottom: 1px solid #27272a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        h1 { 
+            font-size: 1.15rem; 
+            color: #fff; 
+            font-weight: 700; 
+            letter-spacing: -0.3px; 
+        }
+
+        /* Header link menu untuk Kontributor */
+        .header-link-btn {
+            background: transparent;
+            color: #a1a1aa;
+            border: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .header-link-btn:hover {
+            color: #fff;
+            background: #27272a;
+        }
+
+        .header-link-btn.active {
+            color: #fff;
+            background: #2563eb;
+        }
+
+        .clear-btn { 
+            background: #ef4444; 
+            color: white; 
+            border: none; 
+            padding: 6px 12px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 0.8rem; 
+        }
+
+        /* BAR NAVIGASI HORIZONTAL TAB */
+        .category-nav {
+            display: flex;
+            gap: 6px;
+            background: #18181c;
+            padding: 8px 12px; 
+            max-width: 1200px;
+            margin: 8px auto;
+            border-radius: 6px;
+            border: 1px solid #27272a;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .category-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-item {
+            color: #a1a1aa;
+            text-decoration: none;
+            padding: 6px 12px; 
+            font-size: 0.82rem; 
+            font-weight: 600;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        /* PANEL FILTER BOX */
+        .filter-panel-box {
+            background: #18181c;
+            max-width: 1200px;
+            margin: 0 12px 14px 12px; 
+            padding: 12px; 
+            border-radius: 6px;
+            border: 1px solid #27272a;
+        }
+
+        @media (min-width: 1200px) {
+            .filter-panel-box { margin: 0 auto 16px auto; }
+        }
+
+        .filter-header-title {
+            font-size: 0.88rem; 
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .filter-grid-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 8px; 
+        }
+
+        .filter-group select {
+            width: 100%;
+            background: #202024;
+            color: #e4e4e7;
+            border: 1px solid #27272a;
+            padding: 8px 10px; 
+            border-radius: 5px;
+            font-size: 0.8rem; 
+            outline: none;
+            cursor: pointer;
+            -webkit-appearance: none;
+        }
+
+        .search-apply-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.82rem; 
+            padding: 8px;
+            grid-column: 1 / -1;
+        }
+
+        @media (min-width: 768px) {
+            .filter-grid-inputs { grid-template-columns: repeat(4, 1fr) 90px; }
+            .search-apply-btn { grid-column: auto; }
+        }
+
+        /* GRID UTAMA KATALOG */
+        .manga-grid-layout { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
+            gap: 12px; 
+            padding: 0 12px; 
+            max-width: 1200px; 
+            margin: 0 auto 30px auto; 
+        }
+
+        .manga-card-box { 
+            background: #18181c; 
+            border-radius: 6px; 
+            overflow: hidden; 
+            border: 1px solid #27272a; 
+            cursor: pointer; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        .manga-card-box:hover { border-color: #2563eb; }
+        .aspect-cover-holder { width: 100%; padding-top: 140%; position: relative; background: #222; }
+        .aspect-cover-holder img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+
+        .manga-meta-title { 
+            padding: 8px; 
+            font-size: 0.78rem; 
+            font-weight: 600; 
+            color: #e4e4e7; 
+            line-height: 1.25; 
+            text-align: left; 
+            overflow: hidden; 
+            display: -webkit-box; 
+            -webkit-line-clamp: 2; 
+            -webkit-box-orient: vertical;
+        }
+
+        .status-msg { 
+            grid-column: 1/-1; 
+            text-align: center; 
+            color: #a1a1aa; 
+            padding: 30px 0; 
+            font-size: 0.82rem;
+        }
+
+        /* DETAIL & READER SECTION */
+        .detail-container { max-width: 800px; margin: 16px auto; padding: 0 12px; }
+        .detail-upper { display: flex; flex-direction: column; gap: 16px; align-items: center; text-align: center; margin-bottom: 20px; }
+
+        @media (min-width: 768px) {
+            .detail-upper { flex-direction: row; text-align: left; align-items: flex-start; }
+        }
+
+        .detail-cover-box { width: 140px; border-radius: 6px; overflow: hidden; border: 1px solid #27272a; flex-shrink: 0; }
+        .detail-cover-box img { width: 100%; height: auto; display: block; }
+        .status-badge { background: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
+        .detail-genres { display: flex; gap: 6px; margin: 10px 0; flex-wrap: wrap; justify-content: center; }
+
+        @media (min-width: 768px) { .detail-genres { justify-content: flex-start; } }
+
+        .genre-tag { background: #27272a; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; color: #a1a1aa; }
+        .primary-btn { background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: 600; cursor: pointer; width: 100%; font-size: 0.85rem; }
+
+        @media (min-width: 768px) { .primary-btn { width: auto; } }
+
+        .chapter-list { background: #18181c; border: 1px solid #27272a; border-radius: 6px; margin-top: 10px; }
+        .chapter-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid #27272a; cursor: pointer; font-size: 0.82rem; }
+        .chapter-item:hover { background: #202024;}
+        .chapter-actions-box { display: flex; align-items: center; gap: 10px; }
+        
+        .dl-chapter-btn {
+            background: #14b8a6;
+            color: #fff;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .dl-chapter-btn:hover {
+            background: #0d9488;
+        }
+
+        .reader-controls { background: #18181c; padding: 8px; border-bottom: 1px solid #27272a; position: sticky; top: 49px; z-index: 90; display: flex; justify-content: center; gap: 16px; align-items: center; }
+        .reader-controls select { background: #202024; color: #fff; border: 1px solid #27272a; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
+        #reader-container { background-color: #000; width: 100%; }
+        .webtoon-stream-clean { display: flex; flex-direction: column; align-items: center; }
+        .webtoon-stream-clean img { width: 100%; max-width: 700px; height: auto; display: block; margin: 0; padding: 0; border: none; }
+        .manga-mode-layout { display: flex; justify-content: center; padding: 10px; }
+        .manga-mode-layout img { max-width: 100%; max-height: 85vh; }
+
+        /* EDITOR KONTRIBUTOR KHUSUS (FULL PAGE) */
+        .editor-page-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 16px 40px 16px;
+        }
+
+        .editor-header-box {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .editor-sub-desc {
+            font-size: 0.8rem;
+            color: #a1a1aa;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .full-page-card {
+            background: #18181c;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .editor-field-lbl {
+            display: block;
+            font-size: 0.76rem;
+            color: #a1a1aa;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .genre-checkbox-box {
+            background: #202024; 
+            border: 1px solid #27272a; 
+            border-radius: 5px; 
+            max-height: 180px; 
+            overflow-y: auto; 
+            padding: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px;
+        }
+
+        .upload-section-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .upload-section-title {
+            font-size: 1.1rem;
+            color: #3b82f6;
+            font-weight: 700;
+            text-transform: none;
+            letter-spacing: normal;
+            margin-bottom: 0;
+        }
+
+        .form-grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .form-input-group input, .form-input-group select, .form-input-group textarea {
+            width: 100%;
+            background: #202024;
+            color: #fff;
+            border: 1px solid #27272a;
+            padding: 10px 12px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .form-input-group input:focus, .form-input-group textarea:focus {
+            border-color: #2563eb;
+        }
+
+        .upload-files-row {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        @media (min-width: 640px) {
+            .upload-files-row { flex-direction: row; }
+        }
+
+        .file-picker-block {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .file-picker-block span {
+            font-size: 0.78rem;
+            color: #a1a1aa;
+            font-weight: 600;
+        }
+
+        .file-picker-block input[type="file"] {
+            background: #202024;
+            color: #fff;
+            border: 1px solid #27272a;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        #upload-status-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        #upload-status-btn:hover {
+            background: #059669;
+        }
+
+        #upload-status-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* MODAL OVERLAY & SUNTING MODAL */
+        .edit-manga-btn {
+            background: #27272a;
+            color: #e4e4e7;
+            border: 1px solid #3f3f46;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .edit-manga-btn:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(9, 9, 11, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+        }
+
+        .modal-content {
+            background: #18181c;
+            border: 1px solid #27272a;
+            width: 100%;
+            max-width: 640px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            background: #202024;
+            padding: 14px 16px;
+            border-bottom: 1px solid #27272a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* MODAL TABS */
+        .modal-tabs {
+            display: flex;
+            background: #131316;
+            border-bottom: 1px solid #27272a;
+        }
+
+        .modal-tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #a1a1aa;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 0.82rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .modal-tab-btn:hover {
+            color: #fff;
+            background: #18181c;
+        }
+
+        .modal-tab-btn.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            background: #18181c;
+        }
+
+        .close-modal-btn {
+            font-size: 1.4rem;
+            color: #a1a1aa;
+            cursor: pointer;
+            transition: color 0.15s;
+            line-height: 1;
+        }
+
+        .close-modal-btn:hover {
+            color: #fff;
+        }
+
+        .modal-body {
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.75rem;
+            color: #a1a1aa;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .genre-grid-checkbox {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 6px;
+            background: #202024;
+            border: 1px solid #27272a;
+            border-radius: 5px;
+            max-height: 110px;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .edit-chapter-list-section {
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid #27272a;
+        }
+
+        .section-sub-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .section-sub-header h4 {
+            font-size: 0.8rem;
+            color: #3b82f6;
+            font-weight: 700;
+        }
+
+        .page-url-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #18181c;
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #27272a;
+            margin-bottom: 4px;
+        }
+
+        .page-num-lbl {
+            font-size: 0.72rem;
+            color: #a1a1aa;
+            font-weight: 600;
+            width: 42px;
+            flex-shrink: 0;
+        }
+
+        .edit-page-url-input {
+            flex: 1;
+            background: #202024;
+            color: #fff;
+            border: 1px solid #27272a;
+            padding: 5px 8px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .edit-page-url-input:focus {
+            border-color: #2563eb;
+        }
+
+        .page-row-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .upload-row-file-label {
+            background: #3b82f6;
+            color: white;
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: background 0.15s;
+        }
+        .upload-row-file-label:hover {
+            background: #2563eb;
+        }
+
+        .row-upload-indicator {
+            font-size: 0.65rem;
+            color: #eab308;
+            font-weight: 600;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .del-page-row-btn {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 1.2rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 4px;
+        }
+
+        .del-page-row-btn:hover {
+            color: #f87171;
+        }
+
+        .action-light-btn {
+            background: #202024;
+            color: #e4e4e7;
+            border: 1px solid #27272a;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .action-light-btn:hover {
+            background: #27272a;
+            border-color: #3f3f46;
+        }
+
+        .action-light-btn.danger {
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .action-light-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+        }
+
+        .action-light-btn.accent {
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+        .action-light-btn.accent:hover {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: #10b981;
+        }
+
+        .modal-footer {
+            background: #202024;
+            padding: 12px 16px;
+            border-top: 1px solid #27272a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        /* NAVIGASI TOC KUSTOM */
+        .toc-navigation-block {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #111115;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #27272a;
+            width: 100%;
+            max-width: 400px;
+            margin: 15px auto 0 auto;
+            gap: 12px;
+        }
+
+        .toc-nav-btn {
+            background: #202024;
+            color: #fff;
+            border: 1px solid #27272a;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+            user-select: none;
+        }
+
+        .toc-nav-btn:hover {
+            background: #27272a;
+            border-color: #3f3f46;
+        }
+
+        .toc-nav-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        /* TOMBOL SCROLL MENGAMBANG */
+        .floating-controls {
+            position: fixed;
+            right: 20px;
+            bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 500;
+        }
+
+        .scroll-float-btn {
+            background: rgba(37, 99, 235, 0.85);
+            backdrop-filter: blur(3px);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50px;
+            padding: 10px 14px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            transition: background 0.2s, transform 0.15s;
+            outline: none;
+        }
+
+        .scroll-float-btn:hover {
+            background: rgba(37, 99, 235, 1);
+            transform: translateY(-2px);
+        }
+
+        /* CUSTOM TOAST NOTIFICATION CONTAINER */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 350px;
+            width: 100%;
+        }
+
+        .custom-toast {
+            background: #18181c;
+            border-left: 4px solid #2563eb;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 6px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.82rem;
+            animation: slideIn 0.3s forwards;
+            border: 1px solid #27272a;
+        }
+
+        .custom-toast.success { border-left-color: #10b981; }
+        .custom-toast.error { border-left-color: #ef4444; }
+        .custom-toast.warning { border-left-color: #f59e0b; }
+        .custom-toast.info { border-left-color: #3b82f6; }
+
+        @keyframes slideIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .close-toast-btn {
+            background: transparent;
+            border: none;
+            color: #a1a1aa;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-left: 10px;
+        }
+
+        /* CUSTOM CONFIRM MODAL OVERLAY */
+        .confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(9, 9, 11, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 3000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .confirm-box {
+            background: #18181c;
+            border: 1px solid #27272a;
+            max-width: 400px;
+            width: 100%;
+            border-radius: 8px;
+            padding: 18px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .confirm-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .confirm-desc {
+            font-size: 0.8rem;
+            color: #a1a1aa;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .confirm-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+    </style>
 </head>
 <body>
     <header class="viewer-header">
         <div class="header-left">
             <h1 onclick="filterByNav('all', null); navigateTo('catalog')" style="cursor: pointer;">ParagiMaca</h1>
-            <!-- Menu Baru di samping brand ParagiMaca -->
             <button id="nav-editor-btn" class="header-link-btn" onclick="navigateTo('editor')">✍️ UPLOAD</button>
         </div>
         <div class="header-right">
             <button id="back-btn" class="clear-btn" style="display: none;" onclick="handleBackAction()">⬅️</button>
         </div>
     </header>
+
+    <!-- CONTAINER NOTIFIKASI TOAST KUSTOM -->
+    <div id="toast-container"></div>
+
+    <!-- DIALOG KONFIRMASI KUSTOM -->
+    <div id="custom-confirm-container" style="display: none;"></div>
 
     <!-- HALAMAN UTAMA / KATALOG -->
     <div id="catalog-page">
@@ -309,15 +1152,12 @@
         </main>
     </div>
 
-    <!-- HALAMAN BARU: EDITOR & KONTRIBUTOR KOMIK -->
+    <!-- HALAMAN EDITOR & KONTRIBUTOR KOMIK -->
     <div id="editor-page" style="display: none;">
         <div class="editor-page-container">
             <div class="editor-header-box">
                 <h2 class="upload-section-title">Panel Kontributor: Tambah / Update Bab Komik</h2>
                 <p class="editor-sub-desc">Publikasikan karya komik terbaru Anda langsung ke database cloud server ParagiMaca.</p>
-                <a href="countdown_github.html" target="_blank" style="display: inline-block; margin-top: 8px; font-size: 0.75rem; color: #3b82f6; text-decoration: underline; font-weight: 650;">
-                    🔑 Periksa Sisa Waktu Aktif Token GitHub (89 Hari Lagi)
-                </a>
             </div>
 
             <div class="upload-section-box full-page-card">
@@ -396,7 +1236,7 @@
                 <div class="detail-info" style="width: 100%;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px;">
                         <h2 id="detail-title">Judul Komik</h2>
-                        <button class="edit-manga-btn" onclick="openEditPostModal()">✏️</button>
+                        <button class="edit-manga-btn" onclick="openEditPostModal()">✏️ Sunting</button>
                     </div>
                     <p class="detail-author" style="margin-top: 6px;">Status: <span class="status-badge" id="detail-status-text">Ongoing</span></p>
                     <div class="detail-genres" id="detail-genres-container"></div>
@@ -479,8 +1319,18 @@
                         
                         <div id="editor-chapter-pages-container" style="display:none; margin-top:10px;">
                             <p style="font-size: 0.75rem; color:#a1a1aa; margin-bottom:8px;">
-                                Anda dapat mengedit langsung tautan gambar di bawah ini jika terdapat gambar rusak, menghapusnya, atau menambahkan gambar halaman baru secara berurutan.
+                                Anda dapat mengedit langsung tautan gambar di bawah ini, mengunggah file lokal baru per baris halaman, atau melakukan batch upload sekaligus.
                             </p>
+                            
+                            <!-- BATCH UPLOAD UNTUK EDIT CHAPTER -->
+                            <div style="margin-bottom: 10px; display: flex; gap: 8px; align-items: center; background: #202024; padding: 8px; border-radius: 5px; border: 1px solid #27272a;">
+                                <span style="font-size: 0.72rem; color: #a1a1aa; font-weight: 600;">Suntik Batch Lokal:</span>
+                                <label class="upload-row-file-label" style="background:#10b981;">
+                                    ⚡ Batch Upload Gambar Lokal
+                                    <input type="file" id="batch-edit-local-files" accept="image/*" multiple style="display:none;" onchange="handleBatchEditUpload(event)">
+                                </label>
+                            </div>
+
                             <div id="pages-edit-list" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; padding:6px; background:#111; border-radius:5px; border:1px solid #27272a;">
                             </div>
                             <div style="margin-top: 8px; display:flex; gap:6px;">
@@ -535,6 +1385,8 @@
                 <span id="page-indicator">1 / 1</span>
                 <button class="nav-arrow-btn" onclick="nextPage()">Kanan ▶</button>
             </div>
+            <!-- Download Button di baris atas reader -->
+            <button id="reader-dl-btn" class="dl-chapter-btn" style="padding: 6px 12px; font-size: 0.8rem;">📥 Download Chapter</button>
         </div>
         <main id="reader-container"></main>
     </div>
@@ -545,6 +1397,1095 @@
         <button class="scroll-float-btn" onclick="scrollToExtreme('down')" title="Ke Bawah (Akhir Gambar)">▼</button>
     </div>
 
-    <script src="apps.js"></script>
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Konfigurasi Cloud Database GitHub API Anda
+        const GITHUB_CONFIG = {
+            username: "ParagiMaca",           
+            repo: "ParagiMacaNarban_",               
+            path: "manga_data.json",          
+            token: "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" 
+        };
+
+        let allMangaData = [];
+        let currentSelectedManga = null;
+        let currentReaderMode = "webtoon";
+        let currentMangaPageIdx = 0; 
+        let currentPageState = "catalog";
+        let currentNavType = "all"; 
+
+        // 1. Inisialisasi Aplikasi Saat Halaman Selesai Dimuat
+        window.onload = function() {
+            fetchMangaData();
+            initUploadFeature(); 
+            initGenreCheckboxes(); 
+        };
+
+        /* ==========================================================================
+           SISTEM TOAST & DIALOG KONFIRMASI KUSTOM (Anti-Alert / Bebas Iframe crash)
+           ========================================================================== */
+        function showToast(message, type = 'info', duration = 3500) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `custom-toast ${type}`;
+            toast.innerHTML = `
+                <span>${message}</span>
+                <button class="close-toast-btn" onclick="this.parentElement.remove()">&times;</button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s reverse forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        function showConfirm(title, message, onConfirm, onCancel = null) {
+            const container = document.getElementById('custom-confirm-container');
+            if (!container) return;
+
+            container.innerHTML = `
+                <div class="confirm-overlay">
+                    <div class="confirm-box">
+                        <div class="confirm-title">${title}</div>
+                        <div class="confirm-desc">${message}</div>
+                        <div class="confirm-actions">
+                            <button class="action-light-btn" id="confirm-cancel-btn">Batal</button>
+                            <button class="primary-btn" id="confirm-okay-btn" style="padding:6px 16px; font-size:0.8rem; width:auto;">Lanjutkan</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.style.display = 'block';
+
+            document.getElementById('confirm-cancel-btn').onclick = function() {
+                container.style.display = 'none';
+                if (onCancel) onCancel();
+            };
+
+            document.getElementById('confirm-okay-btn').onclick = function() {
+                container.style.display = 'none';
+                if (onConfirm) onConfirm();
+            };
+        }
+
+        // 1b. Mengisi Kotak Pilihan Kontributor Berdasarkan Master Dropdown Filter Sebelah Atas
+        function initGenreCheckboxes() {
+            const container = document.getElementById('manga-genre-checkbox-container');
+            const editContainer = document.getElementById('edit-genre-checkbox-container');
+            if (!container) return;
+            
+            const genreOptions = Array.from(document.querySelectorAll('#filter-genre option'))
+                                      .map(opt => opt.value)
+                                      .filter(val => val !== 'all');
+
+            container.innerHTML = "";
+            if (editContainer) editContainer.innerHTML = "";
+
+            genreOptions.forEach(genre => {
+                // Kontributor Box
+                const label = document.createElement('label');
+                label.style.cssText = "display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #fff; cursor: pointer; user-select: none;";
+                label.innerHTML = `<input type="checkbox" name="contributor-genres" value="${genre}" style="width:auto; margin:0; cursor:pointer;"> <span>${genre}</span>`;
+                container.appendChild(label);
+
+                // Edit Box
+                if (editContainer) {
+                    const labelEdit = document.createElement('label');
+                    labelEdit.style.cssText = "display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #fff; cursor: pointer; user-select: none;";
+                    labelEdit.innerHTML = `<input type="checkbox" name="edit-manga-genres" value="${genre}" style="width:auto; margin:0; cursor:pointer;"> <span>${genre}</span>`;
+                    editContainer.appendChild(labelEdit);
+                }
+            });
+        }
+
+        // 2. Mengambil Data Komik Secara Live dari Cloud Repositori GitHub
+        async function fetchMangaData() {
+            const container = document.getElementById('manga-container');
+            container.innerHTML = "<p class='status-msg'>Memuat database komik dari GitHub...</p>";
+            
+            try {
+                const url = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}?timestamp=${new Date().getTime()}`;
+                
+                const response = await fetch(url, {
+                    headers: { "Authorization": `token ${GITHUB_CONFIG.token}` }
+                });
+
+                if (response.ok) {
+                    const fileData = await response.json();
+                    const decodedContent = decodeURIComponent(escape(atob(fileData.content)));
+                    const rawData = JSON.parse(decodedContent);
+                    
+                    allMangaData = rawData.map(m => {
+                        let detectedType = "Manhwa"; 
+                        if (m.title.toLowerCase().includes("manga")) detectedType = "Manga";
+                        if (m.title.toLowerCase().includes("manhua")) detectedType = "Manhua";
+                        if (m.title.toLowerCase().includes("doujinshi") || m.title.toLowerCase().includes("doujin")) detectedType = "Doujinshi";
+
+                        return {
+                            ...m,
+                            type: m.type || detectedType, 
+                            status: m.status || "Ongoing",
+                            genres: m.genres || ["Action"],
+                            synopsis: m.synopsis || "Kisah seru petualangan di platform ParagiMaca.",
+                            chapters: m.chapters || []
+                        };
+                    });
+                    
+                    displayCatalog(allMangaData);
+                    populateMangaDropdown(); 
+                } else {
+                    container.innerHTML = "<p class='status-msg'>Gagal terhubung ke repositori GitHub. Periksa kredensial / Visibilitas Private.</p>";
+                }
+            } catch (err) {
+                console.error("Error database GitHub:", err);
+                container.innerHTML = "<p class='status-msg'>Gagal memuat katalog komik online.</p>";
+            }
+        }
+
+        function populateMangaDropdown() {
+            const selectEl = document.getElementById('existing-manga-select');
+            if (!selectEl) return;
+            selectEl.innerHTML = "";
+            
+            allMangaData.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id;
+                opt.innerText = m.title;
+                selectEl.appendChild(opt);
+            });
+        }
+
+        function toggleUploadMode(mode) {
+            const isUpdate = (mode === 'update');
+            document.getElementById('existing-manga-wrapper').style.display = isUpdate ? 'block' : 'none';
+            document.getElementById('meta-manga-fields').style.display = isUpdate ? 'none' : 'grid';
+            document.getElementById('synopsis-wrapper').style.display = isUpdate ? 'none' : 'block';
+            document.getElementById('cover-picker-wrapper').style.display = isUpdate ? 'none' : 'block';
+        }
+
+        function displayCatalog(list) {
+            const container = document.getElementById('manga-container');
+            container.innerHTML = "";
+
+            if (list.length === 0) {
+                container.innerHTML = "<p class='status-msg'>Tidak ada komik yang cocok dengan filter.</p>";
+                return;
+            }
+
+            list.forEach(manga => {
+                const card = document.createElement('div');
+                card.className = "manga-card-box";
+                card.innerHTML = `
+                    <div class="aspect-cover-holder">
+                        <img src="${manga.cover}" alt="Cover" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1618519764620-7403abdbfee9?w=300&q=80'">
+                    </div>
+                    <div class="manga-meta-title">${manga.title}</div>
+                `;
+                
+                card.onclick = () => openMangaDetail(manga);
+                container.appendChild(card);
+            });
+        }
+
+        function filterByNav(type, element) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if (element) {
+                element.classList.add('active');
+            } else {
+                document.getElementById('nav-all').classList.add('active');
+            }
+
+            currentNavType = type;
+            executeCombinedFilter();
+        }
+
+        function applyAdvancedFilters() {
+            executeCombinedFilter();
+        }
+
+        function executeCombinedFilter() {
+            const sortVal = document.getElementById('filter-sort').value;
+            const typeVal = document.getElementById('filter-type').value;
+            const genreVal = document.getElementById('filter-genre').value;
+            const statusVal = document.getElementById('filter-status').value;
+
+            let filtered = [...allMangaData];
+
+            if (currentNavType !== 'all') {
+                filtered = filtered.filter(m => m.type === currentNavType);
+            }
+            if (typeVal !== 'all') {
+                filtered = filtered.filter(m => m.type === typeVal);
+            }
+            if (statusVal !== 'all') {
+                filtered = filtered.filter(m => m.status === statusVal);
+            }
+            if (genreVal !== 'all') {
+                filtered = filtered.filter(m => m.genres && m.genres.includes(genreVal));
+            }
+            if (sortVal === 'title') {
+                filtered.sort((a, b) => a.title.localeCompare(b.title));
+            }
+
+            displayCatalog(filtered);
+        }
+
+        function openMangaDetail(manga) {
+            currentSelectedManga = manga;
+            navigateTo('detail');
+
+            document.getElementById('detail-cover').src = manga.cover;
+            document.getElementById('detail-title').innerText = manga.title;
+            document.getElementById('detail-status-text').innerText = manga.status;
+            document.getElementById('detail-synopsis-text').innerText = manga.synopsis || "Tidak ada sinopsis.";
+            
+            const genreContainer = document.getElementById('detail-genres-container');
+            genreContainer.innerHTML = "";
+            if (manga.genres) {
+                manga.genres.forEach(g => {
+                    const span = document.createElement('span');
+                    span.className = "genre-tag";
+                    span.innerText = g;
+                    genreContainer.appendChild(span);
+                });
+            }
+
+            const chapterContainer = document.getElementById('chapter-list-container');
+            chapterContainer.innerHTML = "";
+            
+            if (manga.chapters && manga.chapters.length > 0) {
+                manga.chapters.forEach((ch, idx) => {
+                    const chItem = document.createElement('div');
+                    chItem.className = "chapter-item";
+                    
+                    chItem.innerHTML = `
+                        <span onclick="startReading(${idx})" style="flex:1; cursor:pointer; font-weight:600;">Chapter ${ch.chapter_number}</span>
+                        <div class="chapter-actions-box">
+                            <button class="dl-chapter-btn" onclick="downloadChapterZIP(${idx}, event)">📥 ZIP</button>
+                            <span onclick="startReading(${idx})" style="color:#2563eb; font-weight: bold; cursor:pointer;">BACA</span>
+                        </div>
+                    `;
+                    chapterContainer.appendChild(chItem);
+                });
+            } else {
+                chapterContainer.innerHTML = `<p class='status-msg' style='padding:10px;'>Belum ada chapter terunggah.</p>`;
+            }
+        }
+
+        function readFirstChapter() {
+            if (currentSelectedManga && currentSelectedManga.chapters && currentSelectedManga.chapters.length > 0) {
+                let lastIdx = currentSelectedManga.chapters.length - 1; 
+                startReading(lastIdx);
+            } else {
+                showToast("Belum ada chapter yang tersedia untuk komik ini.", "warning");
+            }
+        }
+
+        function startReading(idx) {
+            currentMangaPageIdx = idx;
+            navigateTo('reader');
+            renderReaderContent();
+        }
+
+        // 12b. Navigasi Halaman dan Render Reader
+        function renderReaderContent() {
+            const reader = document.getElementById('reader-container');
+            const navButtons = document.getElementById('manga-nav-buttons');
+            reader.innerHTML = "";
+
+            if (!currentSelectedManga) return;
+
+            let pagesToRender = [];
+            if (currentSelectedManga.chapters && currentSelectedManga.chapters[currentMangaPageIdx]) {
+                pagesToRender = currentSelectedManga.chapters[currentMangaPageIdx].pages || [];
+            } else {
+                pagesToRender = [currentSelectedManga.cover];
+            }
+
+            // Bind reader download button
+            const dlBtn = document.getElementById('reader-dl-btn');
+            if (dlBtn) {
+                dlBtn.onclick = (e) => downloadChapterZIP(currentMangaPageIdx, e);
+                dlBtn.innerText = `📥 Unduh Bab ${currentSelectedManga.chapters[currentMangaPageIdx]?.chapter_number || ''}`;
+            }
+
+            if (currentReaderMode === "webtoon") {
+                navButtons.style.display = "none";
+                const wrapper = document.createElement('div');
+                wrapper.className = "webtoon-stream-clean";
+
+                pagesToRender.forEach((p, index) => {
+                    const img = document.createElement('img');
+                    img.loading = "lazy";
+                    img.src = p.trim();
+                    img.alt = `Halaman ${index + 1}`;
+                    img.onerror = function() { this.src = 'https://via.placeholder.com/800x600?text=Gambar+Gagal+Dimuat'; };
+                    wrapper.appendChild(img);
+                });
+                reader.appendChild(wrapper);
+
+                // MODAL/FOOTER NAVIGASI CH & TOMBOL TOC DI AKHIR CHAPTER
+                const bottomNavWrapper = document.createElement('div');
+                bottomNavWrapper.style.cssText = "padding: 30px 12px; display: flex; flex-direction: column; gap: 12px; align-items: center; background: #0b0b0d;";
+
+                const hasNextChapter = currentMangaPageIdx > 0;
+                const hasPrevChapter = currentSelectedManga.chapters && currentMangaPageIdx < currentSelectedManga.chapters.length - 1;
+
+                if (hasNextChapter) {
+                    const nextChObj = currentSelectedManga.chapters[currentMangaPageIdx - 1];
+                    const nextBtn = document.createElement('button');
+                    nextBtn.className = "primary-btn";
+                    nextBtn.style.cssText = "background: #2563eb; width: 100%; max-width: 400px; padding: 12px; font-size: 0.9rem; border-radius: 6px; box-shadow: 0 4px 12px rgba(37,99,235,0.2); cursor: pointer;";
+                    nextBtn.innerText = `Selanjutnya: Chapter ${nextChObj.chapter_number} ➡`;
+                    nextBtn.onclick = () => navigateToNextChapter(currentMangaPageIdx - 1);
+                    bottomNavWrapper.appendChild(nextBtn);
+                } else {
+                    const infoText = document.createElement('p');
+                    infoText.style.cssText = "color: #a1a1aa; font-size: 0.82rem; font-style: italic; margin-bottom: 5px;";
+                    infoText.innerText = "Anda telah membaca chapter terbaru dari komik ini.";
+                    bottomNavWrapper.appendChild(infoText);
+                }
+
+                // TOMBOL NAVIGASI NEXT PREV TOC (⬅️ TOC ➡️)
+                const tocBlock = document.createElement('div');
+                tocBlock.className = 'toc-navigation-block';
+
+                const tocPrev = document.createElement('button');
+                tocPrev.className = 'toc-nav-btn';
+                tocPrev.innerText = '⬅️ Prev Ch';
+                tocPrev.disabled = !hasPrevChapter;
+                if (hasPrevChapter) {
+                    tocPrev.onclick = () => navigateToNextChapter(currentMangaPageIdx + 1);
+                }
+
+                const tocHome = document.createElement('button');
+                tocHome.className = 'toc-nav-btn';
+                tocHome.innerText = '📋 TOC (Daftar Isi)';
+                tocHome.onclick = () => handleBackAction();
+
+                const tocNext = document.createElement('button');
+                tocNext.className = 'toc-nav-btn';
+                tocNext.innerText = 'Next Ch ➡️';
+                tocNext.disabled = !hasNextChapter;
+                if (hasNextChapter) {
+                    tocNext.onclick = () => navigateToNextChapter(currentMangaPageIdx - 1);
+                }
+
+                tocBlock.appendChild(tocPrev);
+                tocBlock.appendChild(tocHome);
+                tocBlock.appendChild(tocNext);
+                bottomNavWrapper.appendChild(tocBlock);
+
+                reader.appendChild(bottomNavWrapper);
+
+            } else {
+                navButtons.style.display = "flex";
+                document.getElementById('page-indicator').innerText = `${currentMangaPageIdx + 1} / ${pagesToRender.length}`;
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = "manga-mode-layout";
+                
+                const img = document.createElement('img');
+                img.src = pagesToRender[currentMangaPageIdx].trim();
+                img.onclick = nextPage;
+                wrapper.appendChild(img);
+                reader.appendChild(wrapper);
+            }
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function navigateToNextChapter(targetChapterIdx) {
+            currentMangaPageIdx = targetChapterIdx;
+            renderReaderContent();
+        }
+
+        function switchReaderMode(mode) { 
+            currentReaderMode = mode; 
+            currentMangaPageIdx = 0;
+            renderReaderContent(); 
+        }
+
+        function nextPage() { 
+            let maxPages = 0;
+            if (currentSelectedManga.chapters && currentSelectedManga.chapters[currentMangaPageIdx]) {
+                maxPages = currentSelectedManga.chapters[currentMangaPageIdx].pages.length;
+            }
+            if (currentMangaPageIdx < maxPages - 1) { 
+                currentMangaPageIdx++; 
+                renderReaderContent(); 
+            } 
+        }
+
+        function prevPage() {
+            if (currentMangaPageIdx > 0) {
+                currentMangaPageIdx--;
+                renderReaderContent();
+            }
+        }
+
+        // 13. KONTROL SCROLL MENGAMBANG UP & DOWN
+        function scrollToExtreme(direction) {
+            if (direction === 'up') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }
+        }
+
+        /* ==========================================================================
+           FITUR DOWNLOAD CHAPTER ZIP (MENGGUNAKAN JSZIP ASYNC)
+           ========================================================================== */
+        async function downloadChapterZIP(chapterIdx, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+
+            if (!currentSelectedManga || !currentSelectedManga.chapters[chapterIdx]) {
+                showToast("Data chapter tidak ditemukan.", "error");
+                return;
+            }
+
+            const chapter = currentSelectedManga.chapters[chapterIdx];
+            const pages = chapter.pages || [];
+            if (pages.length === 0) {
+                showToast("Chapter ini kosong atau tidak memiliki halaman.", "warning");
+                return;
+            }
+
+            showToast(`Mempersiapkan unduhan Bab ${chapter.chapter_number}...`, "info");
+            const zip = new JSZip();
+            const cleanTitle = currentSelectedManga.title.replace(/[^a-zA-Z0-9\s]/g, "").trim();
+            const zipFileName = `${cleanTitle}_Chapter_${chapter.chapter_number}.zip`;
+
+            let downloadedCount = 0;
+
+            for (let i = 0; i < pages.length; i++) {
+                const url = pages[i].trim();
+                const pageNum = String(i + 1).padStart(3, '0');
+                const fileExt = url.split('.').pop().split('?')[0] || 'jpg';
+                const filename = `page_${pageNum}.${fileExt}`;
+
+                try {
+                    // Fetch halaman gambar menggunakan Blob
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error("Gagal mengambil data gambar");
+                    const blob = await response.blob();
+                    
+                    // Masukkan ke objek ZIP
+                    zip.file(filename, blob);
+                    downloadedCount++;
+                    
+                    if (downloadedCount % 3 === 0 || downloadedCount === pages.length) {
+                        showToast(`Mengunduh halaman: ${downloadedCount}/${pages.length}`, "info", 1500);
+                    }
+                } catch (err) {
+                    console.warn(`Gagal mengambil halaman ${i + 1} dari link: ${url}`, err);
+                    // Gunakan fallback teks info agar ZIP tidak sepenuhnya rusak
+                    zip.file(`halaman_${pageNum}_error.txt`, `Gagal mengunduh gambar ini secara otomatis dari: ${url}`);
+                }
+            }
+
+            showToast("Mengompresi berkas halaman menjadi ZIP...", "info");
+
+            try {
+                const content = await zip.generateAsync({ type: "blob" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(content);
+                link.download = zipFileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast("ZIP berhasil diunduh!", "success");
+            } catch (err) {
+                console.error(err);
+                showToast("Gagal menghasilkan file kompresi ZIP.", "error");
+            }
+        }
+
+        // 14. LOGIKA ENGINE UPLOAD MULTI-GENRE KE SERVER GITHUB CLOUD
+        function initUploadFeature() {
+            const uploadBtn = document.getElementById('upload-status-btn');
+            const progressText = document.getElementById('upload-progress-text');
+            if (!uploadBtn) return;
+
+            uploadBtn.addEventListener('click', async function() {
+                const actionType = document.getElementById('upload-action-type').value;
+                const chNumVal = document.getElementById('chapter-num-input').value.trim();
+                const pageFiles = document.getElementById('imgbb-pages-input').files;
+
+                if (!chNumVal || pageFiles.length === 0) {
+                    showToast("Harap isi nomor chapter baru dan pilih file gambar isi bab!", "warning");
+                    return;
+                }
+
+                const apiKey = '85e56ee4e01bcb8c426c77b81f29a68c'; 
+                uploadBtn.innerText = "Mengunggah...";
+                uploadBtn.disabled = true;
+                progressText.style.color = "#eab308";
+
+                try {
+                    let uploadedCoverUrl = "";
+                    let targetManga = null;
+                    let selectedGenres = [];
+
+                    if (actionType === 'new') {
+                        const titleVal = document.getElementById('manga-title-input').value.trim();
+                        const synopsisVal = document.getElementById('manga-synopsis-input').value.trim();
+                        const coverFile = document.getElementById('imgbb-cover-input').files[0];
+
+                        selectedGenres = Array.from(document.querySelectorAll('input[name="contributor-genres"]:checked'))
+                                              .map(cb => cb.value);
+
+                        if (!titleVal || !synopsisVal || !coverFile) {
+                            throw new Error("Lengkapi data judul, sinopsis, dan gambar cover komik baru!");
+                        }
+                        if (selectedGenres.length === 0) {
+                            throw new Error("Pilih minimal 1 genre dengan mencentang kotak pilihan!");
+                        }
+
+                        progressText.innerText = "Status: Mengunggah cover komik...";
+                        const coverFormData = new FormData();
+                        coverFormData.append('image', coverFile);
+                        const coverRes = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, { method: 'POST', body: coverFormData });
+                        const coverData = await coverRes.json();
+                        if (!coverData.success) throw new Error("Gagal mengunggah foto cover ke server.");
+                        uploadedCoverUrl = coverData.data.url;
+                    } else {
+                        const selectedId = document.getElementById('existing-manga-select').value;
+                        targetManga = allMangaData.find(m => m.id === selectedId);
+                        if (!targetManga) throw new Error("Komik target tidak ditemukan!");
+                    }
+
+                    const sortedFiles = Array.from(pageFiles).sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
+                    let uploadedPageUrls = [];
+                    let count = 1;
+                    const total = sortedFiles.length;
+
+                    for (const singleFile of sortedFiles) {
+                        const percent = Math.round((count / total) * 100);
+                        progressText.innerText = `Status: Memproses halaman (${count}/${total}) - ${percent}%`;
+
+                        const pageFormData = new FormData();
+                        pageFormData.append('image', singleFile);
+
+                        try {
+                            const pRes = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, { method: 'POST', body: pageFormData });
+                            const pData = await pRes.json();
+                            if (pData.success) uploadedPageUrls.push(pData.data.url);
+                        } catch (e) {
+                            console.warn(`Melewati halaman ke-${count} karena kendala jaringan...`);
+                        }
+                        count++;
+                    }
+
+                    if (uploadedPageUrls.length === 0) throw new Error("Gagal memproses lembaran halaman komik.");
+
+                    const newChapterObject = {
+                        "chapter_number": chNumVal,
+                        "pages": uploadedPageUrls
+                    };
+
+                    if (actionType === 'new') {
+                        const finalMangaObject = {
+                            "id": String(allMangaData.length + 1),
+                            "title": document.getElementById('manga-title-input').value.trim(),
+                            "status": "Ongoing",
+                            "type": document.getElementById('manga-type-input').value,
+                            "genres": selectedGenres, 
+                            "synopsis": document.getElementById('manga-synopsis-input').value.trim(),
+                            "cover": uploadedCoverUrl,
+                            "chapters": [newChapterObject]
+                        };
+                        allMangaData.unshift(finalMangaObject);
+                    } else {
+                        if (!targetManga.chapters) targetManga.chapters = [];
+                        targetManga.chapters.unshift(newChapterObject); 
+                    }
+
+                    progressText.innerText = "Status: Menyinkronkan database ke GitHub...";
+                    await pushDatabaseUpdate(`Kontributor Update: Chapter ${chNumVal}`);
+
+                    showToast("Sukses! Judul komik berhasil diterbitkan!", "success");
+
+                    displayCatalog(allMangaData);
+                    populateMangaDropdown();
+
+                    document.getElementById('manga-title-input').value = "";
+                    document.getElementById('chapter-num-input').value = "";
+                    document.getElementById('manga-synopsis-input').value = "";
+                    document.getElementById('imgbb-cover-input').value = "";
+                    document.getElementById('imgbb-pages-input').value = "";
+                    document.querySelectorAll('input[name="contributor-genres"]').forEach(cb => cb.checked = false);
+                    
+                    progressText.innerText = "Status: Sukses Diterbitkan!";
+                    progressText.style.color = "#10b981";
+
+                    navigateTo('catalog');
+
+                } catch (error) {
+                    showToast(`Gagal: ${error.message}`, "error");
+                    progressText.innerText = "Status: Kesalahan pengiriman.";
+                    progressText.style.color = "#ef4444";
+                } finally {
+                    uploadBtn.innerText = "Terbitkan Update";
+                    uploadBtn.disabled = false;
+                }
+            });
+        }
+
+        // 15. FITUR PENYUNTINGAN POSTINGAN BARU (EDIT MODE & SWITCH TABS)
+        function switchModalTab(tabId) {
+            const tabMetaBtn = document.getElementById('tab-edit-meta');
+            const tabUploadBtn = document.getElementById('tab-upload-chap');
+            const contentMeta = document.getElementById('modal-tab-content-meta');
+            const contentUpload = document.getElementById('modal-tab-content-upload');
+
+            if (tabId === 'meta') {
+                tabMetaBtn.classList.add('active');
+                tabUploadBtn.classList.remove('active');
+                contentMeta.style.display = 'block';
+                contentUpload.style.display = 'none';
+            } else {
+                tabMetaBtn.classList.remove('active');
+                tabUploadBtn.classList.add('active');
+                contentMeta.style.display = 'none';
+                contentUpload.style.display = 'block';
+            }
+        }
+
+        function openEditPostModal() {
+            if (!currentSelectedManga) return;
+            const modal = document.getElementById('edit-post-modal');
+            modal.style.display = 'flex';
+
+            switchModalTab('meta');
+
+            document.getElementById('edit-manga-title').value = currentSelectedManga.title;
+            document.getElementById('edit-manga-type').value = currentSelectedManga.type;
+            document.getElementById('edit-manga-status').value = currentSelectedManga.status;
+            document.getElementById('edit-manga-cover').value = currentSelectedManga.cover;
+            document.getElementById('edit-manga-synopsis').value = currentSelectedManga.synopsis || "";
+
+            const genreCheckboxes = document.querySelectorAll('input[name="edit-manga-genres"]');
+            genreCheckboxes.forEach(cb => {
+                cb.checked = currentSelectedManga.genres && currentSelectedManga.genres.includes(cb.value);
+            });
+
+            const chapterSelector = document.getElementById('edit-chapter-select');
+            chapterSelector.innerHTML = '<option value="">Pilih Chapter...</option>';
+            
+            if (currentSelectedManga.chapters && currentSelectedManga.chapters.length > 0) {
+                currentSelectedManga.chapters.forEach((ch, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = idx;
+                    opt.innerText = `Chapter ${ch.chapter_number}`;
+                    chapterSelector.appendChild(opt);
+                });
+            }
+
+            document.getElementById('editor-chapter-pages-container').style.display = 'none';
+            document.getElementById('edit-progress-text').innerText = "Siap melakukan perubahan.";
+            document.getElementById('edit-progress-text').style.color = "#a1a1aa";
+            
+            document.getElementById('modal-chapter-num-input').value = "";
+            document.getElementById('modal-imgbb-pages-input').value = "";
+        }
+
+        function closeEditPostModal() {
+            document.getElementById('edit-post-modal').style.display = 'none';
+        }
+
+        function loadChapterPagesToEditor(chapterIdxStr) {
+            const container = document.getElementById('editor-chapter-pages-container');
+            const listWrapper = document.getElementById('pages-edit-list');
+            listWrapper.innerHTML = "";
+
+            if (chapterIdxStr === "") {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+            const chIdx = parseInt(chapterIdxStr);
+            const selectedCh = currentSelectedManga.chapters[chIdx];
+            if (!selectedCh || !selectedCh.pages) return;
+
+            selectedCh.pages.forEach((pUrl, index) => {
+                appendPageUrlRow(pUrl.trim(), index);
+            });
+        }
+
+        function appendPageUrlRow(urlVal = "", index = null) {
+            const listWrapper = document.getElementById('pages-edit-list');
+            if (index === null) {
+                index = listWrapper.children.length;
+            }
+
+            const row = document.createElement('div');
+            row.className = 'page-url-row';
+            row.innerHTML = `
+                <span class="page-num-lbl">Hal ${index + 1}</span>
+                <input type="text" class="edit-page-url-input" value="${urlVal}" placeholder="Masukkan Link URL Gambar...">
+                <div class="page-row-actions">
+                    <label class="upload-row-file-label">
+                        📁 Ganti File
+                        <input type="file" accept="image/*" style="display:none;" onchange="handleRowFileSelect(event, this)">
+                    </label>
+                    <span class="row-upload-indicator" style="display:none;"></span>
+                    <button type="button" class="del-page-row-btn" onclick="this.parentElement.parentElement.remove(); reindexPageLabels();" title="Hapus Halaman">&times;</button>
+                </div>
+            `;
+            listWrapper.appendChild(row);
+        }
+
+        function reindexPageLabels() {
+            const rows = document.querySelectorAll('#pages-edit-list .page-url-row');
+            rows.forEach((row, idx) => {
+                row.querySelector('.page-num-lbl').innerText = `Hal ${idx + 1}`;
+            });
+        }
+
+        function addNewPageUrlRow() {
+            appendPageUrlRow("", null);
+        }
+
+        /* ==========================================================================
+           FITUR SUNTING HALAMAN CHAPTER DIAMBIL DARI FILE LOKAL (DIRECT UPLOAD LIVE)
+           ========================================================================== */
+        async function handleRowFileSelect(event, fileInputEl) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const rowEl = fileInputEl.closest('.page-url-row');
+            const inputUrlEl = rowEl.querySelector('.edit-page-url-input');
+            const indicatorEl = rowEl.querySelector('.row-upload-indicator');
+
+            const apiKey = '85e56ee4e01bcb8c426c77b81f29a68c';
+            indicatorEl.style.display = 'inline-block';
+            indicatorEl.innerText = 'Mengunggah...';
+            indicatorEl.style.color = '#eab308';
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    inputUrlEl.value = result.data.url;
+                    indicatorEl.innerText = 'Sukses!';
+                    indicatorEl.style.color = '#10b981';
+                    showToast("Gambar lokal sukses diunggah!", "success");
+                } else {
+                    throw new Error("Upload ImgBB gagal");
+                }
+            } catch (err) {
+                console.error(err);
+                indicatorEl.innerText = 'Gagal!';
+                indicatorEl.style.color = '#ef4444';
+                showToast("Gagal mengunggah file gambar lokal.", "error");
+            }
+        }
+
+        /* ==========================================================================
+           BATCH UPLOAD LOKAL UNTUK MEMPERMUDAH BANYAK GAMBAR DI MODAL EDIT
+           ========================================================================== */
+        async function handleBatchEditUpload(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            const apiKey = '85e56ee4e01bcb8c426c77b81f29a68c';
+            const progressText = document.getElementById('edit-progress-text');
+            progressText.innerText = `Status: Memproses batch upload 0/${files.length}...`;
+            progressText.style.color = '#eab308';
+
+            // Urutkan file berdasarkan abjad/angka nama file
+            const sortedFiles = Array.from(files).sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
+            let successCount = 0;
+
+            for (let i = 0; i < sortedFiles.length; i++) {
+                const singleFile = sortedFiles[i];
+                progressText.innerText = `Status: Mengunggah Batch (${i+1}/${sortedFiles.length})...`;
+
+                const formData = new FormData();
+                formData.append('image', singleFile);
+
+                try {
+                    const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        appendPageUrlRow(result.data.url, null);
+                        successCount++;
+                    }
+                } catch (e) {
+                    console.warn(`Gagal mengunggah file batch indeks-${i}`, e);
+                }
+            }
+
+            reindexPageLabels();
+            progressText.innerText = "Status: Batch upload selesai!";
+            progressText.style.color = '#10b981';
+            showToast(`Sukses menyisipkan ${successCount} gambar baru ke daftar!`, "success");
+            event.target.value = ""; // Reset input
+        }
+
+        function deleteCurrentChapter() {
+            const chapterSelector = document.getElementById('edit-chapter-select');
+            const chIdxStr = chapterSelector.value;
+            if (chIdxStr === "") return;
+
+            showConfirm(
+                "Hapus Bab Ini?",
+                "Apakah Anda yakin ingin menghapus chapter ini secara permanen dari daftar?",
+                function() {
+                    const chIdx = parseInt(chIdxStr);
+                    currentSelectedManga.chapters.splice(chIdx, 1);
+                    
+                    openEditPostModal();
+                    showToast("Bab terhapus dari memori lokal. Jangan lupa klik 'Simpan Perubahan' di bawah!", "warning");
+                }
+            );
+        }
+
+        // FUNGSI UNTUK UNGGUH CHAPTER BARU LANGSUNG DARI MODAL SUNTING
+        async function uploadNewChapterFromModal() {
+            const chNumVal = document.getElementById('modal-chapter-num-input').value.trim();
+            const pageFiles = document.getElementById('modal-imgbb-pages-input').files;
+            const uploadBtn = document.getElementById('modal-chapter-upload-btn');
+            const progressText = document.getElementById('edit-progress-text');
+
+            if (!chNumVal || pageFiles.length === 0) {
+                showToast("Harap isi nomor chapter baru dan pilih file gambar isi bab!", "warning");
+                return;
+            }
+
+            const apiKey = '85e56ee4e01bcb8c426c77b81f29a68c'; 
+            uploadBtn.innerText = "Mengunggah...";
+            uploadBtn.disabled = true;
+            progressText.innerText = "Status: Mempersiapkan pengunggahan bab...";
+            progressText.style.color = "#eab308";
+
+            try {
+                const sortedFiles = Array.from(pageFiles).sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
+                let uploadedPageUrls = [];
+                let count = 1;
+                const total = sortedFiles.length;
+
+                for (const singleFile of sortedFiles) {
+                    const percent = Math.round((count / total) * 100);
+                    progressText.innerText = `Status: Mengunggah gambar (${count}/${total}) - ${percent}%`;
+
+                    const pageFormData = new FormData();
+                    pageFormData.append('image', singleFile);
+
+                    try {
+                        const pRes = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, { method: 'POST', body: pageFormData });
+                        const pData = await pRes.json();
+                        if (pData.success) uploadedPageUrls.push(pData.data.url);
+                    } catch (e) {
+                        console.warn(`Melewati halaman ke-${count} karena kendala jaringan...`);
+                    }
+                    count++;
+                }
+
+                if (uploadedPageUrls.length === 0) throw new Error("Gagal mengunggah lembaran halaman komik.");
+
+                const newChapterObject = {
+                    "chapter_number": chNumVal,
+                    "pages": uploadedPageUrls
+                };
+
+                if (!currentSelectedManga.chapters) currentSelectedManga.chapters = [];
+                currentSelectedManga.chapters.unshift(newChapterObject); 
+
+                // Sinkronkan ke GitHub Cloud
+                progressText.innerText = "Status: Sinkronisasi bab baru ke GitHub Cloud...";
+                
+                const elementIndex = allMangaData.findIndex(m => m.id === currentSelectedManga.id);
+                if (elementIndex !== -1) {
+                    allMangaData[elementIndex] = currentSelectedManga;
+                }
+
+                await pushDatabaseUpdate(`Kontributor Sunting (Upload Bab): ${currentSelectedManga.title} Ch ${chNumVal}`);
+
+                progressText.innerText = "Status: Bab Sukses Diterbitkan!";
+                progressText.style.color = "#10b981";
+                showToast(`Sukses! Chapter ${chNumVal} berhasil ditambahkan ke komik ini.`, "success");
+
+                closeEditPostModal();
+                openMangaDetail(currentSelectedManga);
+                displayCatalog(allMangaData);
+                populateMangaDropdown();
+
+            } catch (error) {
+                showToast(`Gagal: ${error.message}`, "error");
+                progressText.innerText = "Status: Kesalahan pengiriman bab.";
+                progressText.style.color = "#ef4444";
+            } finally {
+                uploadBtn.innerText = "🚀 Terbitkan Bab Baru";
+                uploadBtn.disabled = false;
+            }
+        }
+
+        async function saveMangaChanges() {
+            const saveBtn = document.getElementById('save-edit-btn');
+            const progressText = document.getElementById('edit-progress-text');
+            
+            const newTitle = document.getElementById('edit-manga-title').value.trim();
+            const newCover = document.getElementById('edit-manga-cover').value.trim();
+            const newSynopsis = document.getElementById('edit-manga-synopsis').value.trim();
+            const newType = document.getElementById('edit-manga-type').value;
+            const newStatus = document.getElementById('edit-manga-status').value;
+
+            const selectedGenres = Array.from(document.querySelectorAll('input[name="edit-manga-genres"]:checked'))
+                                        .map(cb => cb.value);
+
+            if (!newTitle || !newCover) {
+                showToast("Judul dan Tautan Cover tidak boleh kosong!", "warning");
+                return;
+            }
+
+            saveBtn.innerText = "Menyimpan...";
+            saveBtn.disabled = true;
+            progressText.innerText = "Status: Memperbarui objek lokal...";
+            progressText.style.color = "#eab308";
+
+            try {
+                currentSelectedManga.title = newTitle;
+                currentSelectedManga.cover = newCover;
+                currentSelectedManga.synopsis = newSynopsis;
+                currentSelectedManga.type = newType;
+                currentSelectedManga.status = newStatus;
+                currentSelectedManga.genres = selectedGenres;
+
+                const chapterSelector = document.getElementById('edit-chapter-select');
+                const activeChIdxStr = chapterSelector.value;
+                if (activeChIdxStr !== "") {
+                    const chIdx = parseInt(activeChIdxStr);
+                    const inputElements = document.querySelectorAll('#pages-edit-list .edit-page-url-input');
+                    const updatedPages = Array.from(inputElements)
+                                              .map(inp => inp.value.trim())
+                                              .filter(val => val !== "");
+                    
+                    if (currentSelectedManga.chapters[chIdx]) {
+                        currentSelectedManga.chapters[chIdx].pages = updatedPages;
+                    }
+                }
+
+                const elementIndex = allMangaData.findIndex(m => m.id === currentSelectedManga.id);
+                if (elementIndex !== -1) {
+                    allMangaData[elementIndex] = currentSelectedManga;
+                }
+
+                progressText.innerText = "Status: Mengirim data teranyar ke GitHub Cloud...";
+                
+                await pushDatabaseUpdate(`Kontributor Sunting: ${newTitle}`);
+
+                progressText.innerText = "Status: Sukses Diperbarui!";
+                progressText.style.color = "#10b981";
+                showToast("Sukses! Suntingan postingan komik berhasil disimpan ke database!", "success");
+                
+                closeEditPostModal();
+                
+                openMangaDetail(currentSelectedManga);
+                displayCatalog(allMangaData);
+
+            } catch (e) {
+                console.error(e);
+                progressText.innerText = "Status: Gagal menyinkronkan.";
+                progressText.style.color = "#ef4444";
+                showToast(`Gagal menyimpan suntingan: ${e.message}`, "error");
+            } finally {
+                saveBtn.innerText = "Simpan Perubahan";
+                saveBtn.disabled = false;
+            }
+        }
+
+        async function pushDatabaseUpdate(commitMessage) {
+            const getUrl = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
+            const fileMetaRes = await fetch(getUrl, {
+                headers: { "Authorization": `token ${GITHUB_CONFIG.token}` }
+            });
+            
+            if (!fileMetaRes.ok) {
+                throw new Error("Gagal mengambil meta SHA database dari GitHub.");
+            }
+            
+            const fileMeta = await fileMetaRes.json();
+            const currentSha = fileMeta.sha;
+
+            const rawJsonText = JSON.stringify(allMangaData, null, 2);
+            const encodedContent = btoa(unescape(encodeURIComponent(rawJsonText)));
+
+            const pushResponse = await fetch(getUrl, {
+                method: 'PUT',
+                headers: {
+                    "Authorization": `token ${GITHUB_CONFIG.token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: commitMessage,
+                    content: encodedContent,
+                    sha: currentSha
+                })
+            });
+
+            if (!pushResponse.ok) {
+                throw new Error("Database gagal disinkronkan ke Cloud GitHub.");
+            }
+        }
+
+        // Navigasi halaman dasar
+        function navigateTo(state) {
+            currentPageState = state;
+            document.getElementById('catalog-page').style.display = state === 'catalog' ? 'block' : 'none';
+            document.getElementById('editor-page').style.display = state === 'editor' ? 'block' : 'none';
+            document.getElementById('detail-page').style.display = state === 'detail' ? 'block' : 'none';
+            document.getElementById('reader-page').style.display = state === 'reader' ? 'block' : 'none';
+            
+            // Kelola tampilan tombol mengambang (hanya muncul di halaman reader)
+            const floatScroller = document.getElementById('floating-scroller-controls');
+            if (floatScroller) {
+                floatScroller.style.display = state === 'reader' ? 'flex' : 'none';
+            }
+
+            // Tampilkan tombol kembali jika bukan di halaman katalog utama
+            document.getElementById('back-btn').style.display = state === 'catalog' ? 'none' : 'block';
+            
+            // Kelola status aktif link header
+            const editorBtn = document.getElementById('nav-editor-btn');
+            if (editorBtn) {
+                if (state === 'editor') {
+                    editorBtn.classList.add('active');
+                } else {
+                    editorBtn.classList.remove('active');
+                }
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function handleBackAction() {
+            if (currentPageState === 'reader') {
+                navigateTo('detail');
+            } else if (currentPageState === 'detail' || currentPageState === 'editor') {
+                navigateTo('catalog');
+                executeCombinedFilter(); 
+            }
+        }
+    </script>
 </body>
 </html>

@@ -471,20 +471,30 @@
 
                     <div class="edit-chapter-list-section">
                         <div class="section-sub-header">
-                            <h4>Kelola Daftar Bab & Gambar (Mencegah Link Rusak)</h4>
+                            <h4>Kelola Daftar Bab & Gambar</h4>
                             <select id="edit-chapter-select" onchange="loadChapterPagesToEditor(this.value)" style="background: #202024; color: #fff; padding: 4px; border-radius: 4px; font-size: 0.8rem; border:1px solid #27272a;">
                                 <option value="">Pilih Chapter...</option>
                             </select>
                         </div>
                         
+                        <!-- PANEL MANAGEMEN SEBARAN GAMBAR PER CHAPTER -->
                         <div id="editor-chapter-pages-container" style="display:none; margin-top:10px;">
                             <p style="font-size: 0.75rem; color:#a1a1aa; margin-bottom:8px;">
-                                Anda dapat mengedit langsung tautan gambar di bawah ini jika terdapat gambar rusak, menghapusnya, atau menambahkan gambar halaman baru secara berurutan.
+                                Anda dapat mengedit langsung tautan gambar di bawah ini atau <strong>pilih file lokal</strong> untuk mengganti gambar bab tersebut.
                             </p>
+                            
+                            <!-- Box Upload File Lokal Massal untuk Mengganti Semua Gambar di Chapter Ini -->
+                            <div style="background: #18181c; padding: 10px; border-radius: 5px; border: 1px dashed #3b82f6; margin-bottom: 12px;">
+                                <label style="display: block; font-size: 0.75rem; color: #3b82f6; font-weight: 600; margin-bottom: 4px;">⚡ Ganti / Timpa Semua Gambar dari File Lokal:</label>
+                                <input type="file" id="edit-chapter-pages-bulk-input" accept="image/*" multiple style="font-size: 0.75rem; color:#ccc; width: 100%;">
+                                <p style="font-size: 0.65rem; color:#888; margin-top: 4px;">*Mengunggah file di sini akan mengganti daftar halaman di bawah ini setelah file selesai diproses saat tombol simpan ditekan.</p>
+                            </div>
+
                             <div id="pages-edit-list" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; padding:6px; background:#111; border-radius:5px; border:1px solid #27272a;">
                             </div>
-                            <div style="margin-top: 8px; display:flex; gap:6px;">
-                                <button type="button" class="action-light-btn" onclick="addNewPageUrlRow()">➕ Tambah Baris Halaman</button>
+                            
+                            <div style="margin-top: 8px; display:flex; gap:6px; flex-wrap: wrap;">
+                                <button type="button" class="action-light-btn" onclick="addNewPageUrlRow()">➕ Tambah Baris Halaman Manual</button>
                                 <button type="button" class="action-light-btn danger" onclick="deleteCurrentChapter()">🗑️ Hapus Bab Ini</button>
                             </div>
                         </div>

@@ -1,9 +1,9 @@
 // Konfigurasi Cloud Database GitHub API Anda
 const GITHUB_CONFIG = {
     username: "ParagiMaca",           
-    repo: "ParagiMacaNarban",               
+    repo: "ParagiMacaNarban_",               
     path: "manga_data.json",          
-    token: "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" // Ingat gantilah token ini jika di-revoke github
+    token: "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" // Token baru yang disesuaikan
 };
 
 let allMangaData = [];
@@ -357,6 +357,13 @@ function nextPage() {
         currentMangaPageIdx++; 
         renderReaderContent(); 
     } 
+}
+
+function prevPage() {
+    if (currentMangaPageIdx > 0) {
+        currentMangaPageIdx--;
+        renderReaderContent();
+    }
 }
 
 // 13. KONTROL SCROLL MENGAMBANG UP & DOWN

@@ -1,7 +1,7 @@
 // Konfigurasi Cloud Database GitHub API Anda
 const GITHUB_CONFIG = {
     username: "ParagiMaca",           
-    repo: "ParagiMaca",               
+    repo: "ParagiMaca",               // Telah disamakan dengan nama repositori Anda yang benar
     path: "manga_data.json",          
     // Token dikosongkan dari script utama demi keamanan & diambil dari localStorage
     get token() {
@@ -133,9 +133,17 @@ async function fetchMangaData() {
             displayCatalog(allMangaData);
             populateMangaDropdown(); 
         } else {
+            let errorMsg = `Gagal terhubung (Status: ${response.status})`;
+            if (response.status === 401 || response.status === 403) {
+                errorMsg = "Token GitHub salah, kedaluwarsa, atau tidak memiliki izin akses (repo scope).";
+            } else if (response.status === 404) {
+                errorMsg = `File '${GITHUB_CONFIG.path}' atau Repositori '${GITHUB_CONFIG.repo}' tidak ditemukan di akun '${GITHUB_CONFIG.username}'.`;
+            }
+
             container.innerHTML = `
-                <div style="text-align: center; padding: 30px 10px;">
-                    <p class='status-msg' style="color: #ef4444; margin-bottom: 12px;">Gagal terhubung ke repositori GitHub. Token Anda mungkin tidak valid atau kedaluwarsa.</p>
+                <div style="text-align: center; padding: 30px 10px; max-width: 500px; margin: 0 auto; background: #1c1c24; border: 1px solid #27272a; border-radius: 8px;">
+                    <p class='status-msg' style="color: #ef4444; margin-bottom: 15px; font-weight: 500;">❌ Koneksi GitHub Gagal</p>
+                    <p style="color: #a1a1aa; font-size: 0.85rem; margin-bottom: 20px; padding: 0 15px;">${errorMsg}</p>
                     <button onclick="resetExternalToken()" style="padding: 8px 16px; background: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Input Ulang Token</button>
                 </div>
             `;
@@ -143,8 +151,9 @@ async function fetchMangaData() {
     } catch (err) {
         console.error("Error database GitHub:", err);
         container.innerHTML = `
-            <div style="text-align: center; padding: 30px 10px;">
-                <p class='status-msg' style="color: #ef4444; margin-bottom: 12px;">Gagal memuat katalog komik online akibat kendala koneksi atau token.</p>
+            <div style="text-align: center; padding: 30px 10px; max-width: 500px; margin: 0 auto; background: #1c1c24; border: 1px solid #27272a; border-radius: 8px;">
+                <p class='status-msg' style="color: #ef4444; margin-bottom: 12px;">❌ Kendala Jaringan</p>
+                <p style="color: #a1a1aa; font-size: 0.85rem; margin-bottom: 20px;">Gagal memuat data. Periksa koneksi internet Anda atau format token lokal Anda.</p>
                 <button onclick="resetExternalToken()" style="padding: 8px 16px; background: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Input Ulang Token</button>
             </div>
         `;
@@ -293,7 +302,6 @@ function startReading(idx) {
     renderReaderContent();
 }
 
-// 12b. Navigasi Halaman dan Render Reader
 function renderReaderContent() {
     const reader = document.getElementById('reader-container');
     const navButtons = document.getElementById('manga-nav-buttons');
@@ -323,7 +331,6 @@ function renderReaderContent() {
         });
         reader.appendChild(wrapper);
 
-        // MODAL/FOOTER NAVIGASI CH & TOMBOL TOC DI AKHIR CHAPTER
         const bottomNavWrapper = document.createElement('div');
         bottomNavWrapper.style.cssText = "padding: 30px 12px; display: flex; flex-direction: column; gap: 12px; align-items: center; background: #0b0b0d;";
 
@@ -345,7 +352,6 @@ function renderReaderContent() {
             bottomNavWrapper.appendChild(infoText);
         }
 
-        // TOMBOL NAVIGASI NEXT PREV TOC (⬅️ TOC ➡️)
         const tocBlock = document.createElement('div');
         tocBlock.className = 'toc-navigation-block';
 
@@ -423,7 +429,6 @@ function prevPage() {
     }
 }
 
-// 13. KONTROL SCROLL MENGAMBANG UP & DOWN
 function scrollToExtreme(direction) {
     if (direction === 'up') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -432,14 +437,12 @@ function scrollToExtreme(direction) {
     }
 }
 
-// 14. LOGIKA ENGINE UPLOAD MULTI-GENRE KE SERVER GITHUB CLOUD
 function initUploadFeature() {
     const uploadBtn = document.getElementById('upload-status-btn');
     const progressText = document.getElementById('upload-progress-text');
     if (!uploadBtn) return;
 
     uploadBtn.addEventListener('click', async function() {
-        // Validasi ketersediaan token GitHub di browser
         if (!GITHUB_CONFIG.token) {
             alert("Operasi ditolak. Token GitHub tidak ditemukan atau belum dimasukkan ke memori browser!");
             resetExternalToken();
@@ -570,7 +573,6 @@ function initUploadFeature() {
     });
 }
 
-// 15. FITUR PENYUNTINGAN POSTINGAN BARU (EDIT MODE & SWITCH TABS)
 function switchModalTab(tabId) {
     const tabMetaBtn = document.getElementById('tab-edit-meta');
     const tabUploadBtn = document.getElementById('tab-upload-chap');
@@ -595,7 +597,6 @@ function openEditPostModal() {
     const modal = document.getElementById('edit-post-modal');
     modal.style.display = 'flex';
 
-    // Default aktifkan tab metadata info utama
     switchModalTab('meta');
 
     document.getElementById('edit-manga-title').value = currentSelectedManga.title;
@@ -625,7 +626,6 @@ function openEditPostModal() {
     document.getElementById('edit-progress-text').innerText = "Siap melakukan perubahan.";
     document.getElementById('edit-progress-text').style.color = "#a1a1aa";
     
-    // Reset file uploads di dalam modal
     document.getElementById('modal-chapter-num-input').value = "";
     document.getElementById('modal-imgbb-pages-input').value = "";
 }
@@ -695,9 +695,7 @@ function deleteCurrentChapter() {
     }
 }
 
-// FUNGSI UNTUK UNGGUH CHAPTER BARU LANGSUNG DARI MODAL SUNTING
 async function uploadNewChapterFromModal() {
-    // Validasi token GitHub
     if (!GITHUB_CONFIG.token) {
         alert("Operasi ditolak. Token GitHub tidak ditemukan!");
         resetExternalToken();
@@ -753,7 +751,6 @@ async function uploadNewChapterFromModal() {
         if (!currentSelectedManga.chapters) currentSelectedManga.chapters = [];
         currentSelectedManga.chapters.unshift(newChapterObject); 
 
-        // Sinkronkan ke GitHub Cloud
         progressText.innerText = "Status: Sinkronisasi bab baru ke GitHub Cloud...";
         
         const elementIndex = allMangaData.findIndex(m => m.id === currentSelectedManga.id);
@@ -767,7 +764,6 @@ async function uploadNewChapterFromModal() {
         progressText.style.color = "#10b981";
         alert(`Sukses! Chapter ${chNumVal} berhasil ditambahkan ke komik ini.`);
 
-        // Muat ulang daftar modal dan halaman detail komik
         closeEditPostModal();
         openMangaDetail(currentSelectedManga);
         displayCatalog(allMangaData);
@@ -784,7 +780,6 @@ async function uploadNewChapterFromModal() {
 }
 
 async function saveMangaChanges() {
-    // Validasi token GitHub
     if (!GITHUB_CONFIG.token) {
         alert("Operasi ditolak. Token GitHub tidak ditemukan!");
         resetExternalToken();
@@ -841,7 +836,6 @@ async function saveMangaChanges() {
         }
 
         progressText.innerText = "Status: Mengirim data teranyar ke GitHub Cloud...";
-        
         await pushDatabaseUpdate(`Kontributor Sunting: ${newTitle}`);
 
         progressText.innerText = "Status: Sukses Diperbarui!";
@@ -849,7 +843,6 @@ async function saveMangaChanges() {
         alert("Sukses! Suntingan postingan komik berhasil disimpan ke database!");
         
         closeEditPostModal();
-        
         openMangaDetail(currentSelectedManga);
         displayCatalog(allMangaData);
 
@@ -898,7 +891,6 @@ async function pushDatabaseUpdate(commitMessage) {
     }
 }
 
-// Navigasi halaman dasar
 function navigateTo(state) {
     currentPageState = state;
     document.getElementById('catalog-page').style.display = state === 'catalog' ? 'block' : 'none';
@@ -906,16 +898,13 @@ function navigateTo(state) {
     document.getElementById('detail-page').style.display = state === 'detail' ? 'block' : 'none';
     document.getElementById('reader-page').style.display = state === 'reader' ? 'block' : 'none';
     
-    // Kelola tampilan tombol mengambang (hanya muncul di halaman reader)
     const floatScroller = document.getElementById('floating-scroller-controls');
     if (floatScroller) {
         floatScroller.style.display = state === 'reader' ? 'flex' : 'none';
     }
 
-    // Tampilkan tombol kembali jika bukan di halaman katalog utama
     document.getElementById('back-btn').style.display = state === 'catalog' ? 'none' : 'block';
     
-    // Kelola status aktif link header
     const editorBtn = document.getElementById('nav-editor-btn');
     if (editorBtn) {
         if (state === 'editor') {

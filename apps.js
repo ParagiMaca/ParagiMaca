@@ -1,10 +1,44 @@
 // Konfigurasi Cloud Database GitHub API Anda
 const GITHUB_CONFIG = {
     username: "ParagiMaca",           
-    repo: "ParagiMaca",               
+    repo: "ParagiMacaNarban_",               
     path: "manga_data.json",          
-    token: "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" // Token baru yang disesuaikan
+    // Token dikosongkan dari script utama demi keamanan & diambil dari localStorage
+    get token() {
+        return getExternalToken();
+    }
 };
+
+// Fungsi untuk mengambil token dari memori eksternal (LocalStorage)
+function getExternalToken() {
+    let token = localStorage.getItem('GITHUB_DB_TOKEN');
+    
+    // Jika token tidak ada di memori, minta input dari pengguna
+    if (!token) {
+        token = prompt("Masukkan GitHub Personal Access Token Anda untuk mengakses database:");
+        if (token) {
+            token = token.trim();
+            localStorage.setItem('GITHUB_DB_TOKEN', token);
+        } else {
+            console.warn("Peringatan: Aplikasi memerlukan token GitHub yang valid untuk melakukan perubahan.");
+        }
+    }
+    return token;
+}
+
+// Fungsi untuk menghapus token / reset kredensial
+function resetExternalToken() {
+    localStorage.removeItem('GITHUB_DB_TOKEN');
+    const token = prompt("Token lama dihapus. Masukkan GitHub Personal Access Token baru Anda:");
+    if (token) {
+        localStorage.setItem('GITHUB_DB_TOKEN', token.trim());
+        alert("Token baru berhasil disimpan!");
+        location.reload();
+    } else {
+        alert("Aplikasi dimuat ulang tanpa token.");
+        location.reload();
+    }
+}
 
 let allMangaData = [];
 let currentSelectedManga = null;
@@ -15,7 +49,20 @@ let currentNavType = "all";
 
 // 1. Inisialisasi Aplikasi Saat Halaman Selesai Dimuat
 window.onload = function() {
-    fetchMangaData();
+    // Memastikan token terkonfigurasi sebelum fetch data dilakukan
+    if (GITHUB_CONFIG.token) {
+        fetchMangaData();
+    } else {
+        const container = document.getElementById('manga-container');
+        if (container) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px;">
+                    <p class='status-msg' style="margin-bottom: 15px;">Aplikasi memerlukan token GitHub untuk mengakses database.</p>
+                    <button onclick="resetExternalToken()" style="padding: 10px 20px; background: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Input Token GitHub</button>
+                </div>
+            `;
+        }
+    }
     initUploadFeature(); 
     initGenreCheckboxes(); 
 };
@@ -86,11 +133,21 @@ async function fetchMangaData() {
             displayCatalog(allMangaData);
             populateMangaDropdown(); 
         } else {
-            container.innerHTML = "<p class='status-msg'>Gagal terhubung ke repositori GitHub. Periksa kredensial / Visibilitas Private.</p>";
+            container.innerHTML = `
+                <div style="text-align: center; padding: 30px 10px;">
+                    <p class='status-msg' style="color: #ef4444; margin-bottom: 12px;">Gagal terhubung ke repositori GitHub. Token Anda mungkin tidak valid atau kedaluwarsa.</p>
+                    <button onclick="resetExternalToken()" style="padding: 8px 16px; background: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Input Ulang Token</button>
+                </div>
+            `;
         }
     } catch (err) {
         console.error("Error database GitHub:", err);
-        container.innerHTML = "<p class='status-msg'>Gagal memuat katalog komik online.</p>";
+        container.innerHTML = `
+            <div style="text-align: center; padding: 30px 10px;">
+                <p class='status-msg' style="color: #ef4444; margin-bottom: 12px;">Gagal memuat katalog komik online akibat kendala koneksi atau token.</p>
+                <button onclick="resetExternalToken()" style="padding: 8px 16px; background: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Input Ulang Token</button>
+            </div>
+        `;
     }
 }
 
@@ -382,6 +439,13 @@ function initUploadFeature() {
     if (!uploadBtn) return;
 
     uploadBtn.addEventListener('click', async function() {
+        // Validasi ketersediaan token GitHub di browser
+        if (!GITHUB_CONFIG.token) {
+            alert("Operasi ditolak. Token GitHub tidak ditemukan atau belum dimasukkan ke memori browser!");
+            resetExternalToken();
+            return;
+        }
+
         const actionType = document.getElementById('upload-action-type').value;
         const chNumVal = document.getElementById('chapter-num-input').value.trim();
         const pageFiles = document.getElementById('imgbb-pages-input').files;
@@ -633,6 +697,13 @@ function deleteCurrentChapter() {
 
 // FUNGSI UNTUK UNGGUH CHAPTER BARU LANGSUNG DARI MODAL SUNTING
 async function uploadNewChapterFromModal() {
+    // Validasi token GitHub
+    if (!GITHUB_CONFIG.token) {
+        alert("Operasi ditolak. Token GitHub tidak ditemukan!");
+        resetExternalToken();
+        return;
+    }
+
     const chNumVal = document.getElementById('modal-chapter-num-input').value.trim();
     const pageFiles = document.getElementById('modal-imgbb-pages-input').files;
     const uploadBtn = document.getElementById('modal-chapter-upload-btn');
@@ -713,6 +784,13 @@ async function uploadNewChapterFromModal() {
 }
 
 async function saveMangaChanges() {
+    // Validasi token GitHub
+    if (!GITHUB_CONFIG.token) {
+        alert("Operasi ditolak. Token GitHub tidak ditemukan!");
+        resetExternalToken();
+        return;
+    }
+
     const saveBtn = document.getElementById('save-edit-btn');
     const progressText = document.getElementById('edit-progress-text');
     

@@ -1,5 +1,41 @@
 [
   {
+    "id": "5",
+    "title": "I Randomly Have A New Career Every Week",
+    "status": "Ongoing",
+    "type": "Manga",
+    "genres": [
+      "Drama",
+      "Fantasy",
+      "Romance"
+    ],
+    "synopsis": "dibuat oleh komikus bernama Reading comics ini bercerita tentang Setelah diberhentikan oleh perusahaan, Lin Yi mendapatkan sistem \"pengalaman pekerja paruh waktu profesional\" secara tidak sengaja. Lin Yi mengandalkan berbagai pengaturan profesional dan penghargaan murah hati yang diberikan oleh sistem untuk mencapai ambisinya dan jalannya untuk menjadi kaya selangkah demi selangkah semakin tertuju, sampai akhirnya menjadi bos yang sangat kuat untuk mendominasi dunia.",
+    "cover": "https://i.ibb.co/4ZpsFvqr/cover.jpg",
+    "chapters": [
+      {
+        "chapter_number": "0",
+        "pages": [
+          "https://i.ibb.co/SHs2m9p/00000000-00010002.jpg",
+          "https://i.ibb.co/N2YKT5L2/00000000-00010003.jpg",
+          "https://i.ibb.co/3y4q5g3s/00000000-00010004.jpg",
+          "https://i.ibb.co/RGGBS6T4/00000000-00010005.jpg",
+          "https://i.ibb.co/Pv9qTBTy/00000000-00010006.jpg",
+          "https://i.ibb.co/8pMhwhF/00000000-00010007.jpg",
+          "https://i.ibb.co/Xr80J38m/00000000-00020002.jpg",
+          "https://i.ibb.co/twk8qQg2/00000000-00020003.jpg",
+          "https://i.ibb.co/84R65K4h/00000000-00020004.jpg",
+          "https://i.ibb.co/CKh9FymZ/00000000-00020005.jpg",
+          "https://i.ibb.co/9mFbdB0w/00000000-00020006.jpg",
+          "https://i.ibb.co/3yXQB1Vg/00000000-00020007.jpg",
+          "https://i.ibb.co/S4xvdmqF/00000000-00020008.jpg",
+          "https://i.ibb.co/BKsZbT5w/00000000-00020009.jpg",
+          "https://i.ibb.co/NgJh0ShR/00000000-00020010.jpg",
+          "https://i.ibb.co/ds50z00j/00000000-00020011.jpg"
+        ]
+      }
+    ]
+  },
+  {
     "id": "4",
     "title": "Inaka Imouto to Muchi no Yuuwaku",
     "status": "Ongoing",

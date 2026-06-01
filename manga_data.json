@@ -237,6 +237,16 @@
     "cover": "https://i.ibb.co/4ZpsFvqr/cover.jpg",
     "chapters": [
       {
+        "chapter_number": "3",
+        "pages": [
+          "https://i.ibb.co/VWyM2S9K/01.png",
+          "https://i.ibb.co/FLvnXCzb/02.png",
+          "https://i.ibb.co/yczVpzJN/03.png",
+          "https://i.ibb.co/67qCrqKQ/04.png",
+          "https://i.ibb.co/zWDJMpqK/05.png"
+        ]
+      },
+      {
         "chapter_number": "2",
         "pages": [
           "https://i.ibb.co/XkX63Lq9/1.png",

@@ -13,6 +13,15 @@
     "cover": "https://i.ibb.co/4ZpsFvqr/cover.jpg",
     "chapters": [
       {
+        "chapter_number": "2",
+        "pages": [
+          "https://i.ibb.co/XkX63Lq9/1.png",
+          "https://i.ibb.co/G38D9jT6/2.png",
+          "https://i.ibb.co/60J6qrgW/3.png",
+          "https://i.ibb.co/nM3s98MP/4.png"
+        ]
+      },
+      {
         "chapter_number": "1",
         "pages": [
           "https://i.ibb.co/pvgkL6Wz/1.png",

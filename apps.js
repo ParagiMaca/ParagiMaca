@@ -925,3 +925,16 @@ function handleBackAction() {
         executeCombinedFilter(); 
     }
 }
+
+// Daftarkan PWA Service Worker demi deteksi smartphone
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(registration => {
+                console.log('PWA Service Worker berhasil didaftarkan pada scope:', registration.scope);
+            })
+            .catch(error => {
+                console.error('PWA Service Worker gagal didaftarkan:', error);
+            });
+    });
+}

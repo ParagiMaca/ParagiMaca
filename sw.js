@@ -1,10 +1,9 @@
-const CACHE_NAME = 'paragimaca-cache-v1';
+const CACHE_NAME = 'paragimaca-cache-v2'; // Naikkan versi cache agar browser membuang cache lama
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './style.css',
     './apps.js',
-    './manga_data.json',
     './countdown_github.html'
 ];
 
@@ -33,17 +32,32 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-    if (event.request.url.startsWith(self.location.origin) || event.request.url.startsWith('http')) {
+    // PERBAIKAN UTAMA 1: Hanya intersepsi request dengan metode GET (Abaikan POST / PUT)
+    if (event.request.method !== 'GET') {
+        return; 
+    }
+
+    const requestUrl = new URL(event.request.url);
+
+    // PERBAIKAN UTAMA 2: JANGAN intersepsi request ke API pihak ketiga (GitHub & ImgBB)
+    // Ini memastikan upload data & sinkronisasi database tidak terhambat dan selalu mengambil data real-time!
+    if (requestUrl.hostname.includes('github.com') || requestUrl.hostname.includes('imgbb.com')) {
+        return; 
+    }
+
+    // PERBAIKAN UTAMA 3: Hanya intersepsi aset lokal milik website kita sendiri (Same-Origin)
+    if (requestUrl.origin === self.location.origin) {
         event.respondWith(
             caches.match(event.request).then(cachedResponse => {
                 if (cachedResponse) {
+                    // Stale-While-Revalidate: Sembari menyajikan data cepat dari cache, lakukan update di background
                     fetch(event.request).then(networkResponse => {
                         if (networkResponse.status === 200) {
                             caches.open(CACHE_NAME).then(cache => {
                                 cache.put(event.request, networkResponse);
                             });
                         }
-                    }).catch(() => { /* Abaikan galat jaringan saat perangkat sedang offline */ });
+                    }).catch(() => { /* Abaikan jika luring */ });
 
                     return cachedResponse;
                 }
@@ -59,8 +73,6 @@ self.addEventListener('fetch', event => {
                     });
 
                     return networkResponse;
-                }).catch(() => {
-                    console.log('[Service Worker] Perangkat luring dan aset tidak ditemukan di cache.');
                 });
             })
         );

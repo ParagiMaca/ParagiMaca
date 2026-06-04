@@ -142,7 +142,7 @@ async function fetchMangaData() {
 
             container.innerHTML = `
                 <div style="text-align: center; padding: 30px 10px; max-width: 500px; margin: 0 auto; background: #1c1c24; border: 1px solid #27272a; border-radius: 8px;">
-                    <p class='status-msg' style="color: #ef4444; margin-bottom: 15px; font-weight: 500;">❌ Koneksi GitHub Gagal</p>
+                    <p class='status-msg' style="color: #ef4444; margin-bottom: 15px; font-weight: 500;">âŒ Koneksi GitHub Gagal</p>
                     <p style="color: #a1a1aa; font-size: 0.85rem; margin-bottom: 20px; padding: 0 15px;">${errorMsg}</p>
                     <button onclick="resetExternalToken()" style="padding: 8px 16px; background: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Input Ulang Token</button>
                 </div>
@@ -152,7 +152,7 @@ async function fetchMangaData() {
         console.error("Error database GitHub:", err);
         container.innerHTML = `
             <div style="text-align: center; padding: 30px 10px; max-width: 500px; margin: 0 auto; background: #1c1c24; border: 1px solid #27272a; border-radius: 8px;">
-                <p class='status-msg' style="color: #ef4444; margin-bottom: 12px;">❌ Kendala Jaringan</p>
+                <p class='status-msg' style="color: #ef4444; margin-bottom: 12px;">âŒ Kendala Jaringan</p>
                 <p style="color: #a1a1aa; font-size: 0.85rem; margin-bottom: 20px;">Gagal memuat data. Periksa koneksi internet Anda atau format token lokal Anda.</p>
                 <button onclick="resetExternalToken()" style="padding: 8px 16px; background: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Input Ulang Token</button>
             </div>
@@ -342,7 +342,7 @@ function renderReaderContent() {
             const nextBtn = document.createElement('button');
             nextBtn.className = "primary-btn";
             nextBtn.style.cssText = "background: #2563eb; width: 100%; max-width: 400px; padding: 12px; font-size: 0.9rem; border-radius: 6px; box-shadow: 0 4px 12px rgba(37,99,235,0.2); cursor: pointer;";
-            nextBtn.innerText = `Selanjutnya: Chapter ${nextChObj.chapter_number} ➡`;
+            nextBtn.innerText = `Selanjutnya: Chapter ${nextChObj.chapter_number} âž¡`;
             nextBtn.onclick = () => navigateToNextChapter(currentMangaPageIdx - 1);
             bottomNavWrapper.appendChild(nextBtn);
         } else {
@@ -357,7 +357,7 @@ function renderReaderContent() {
 
         const tocPrev = document.createElement('button');
         tocPrev.className = 'toc-nav-btn';
-        tocPrev.innerText = '⬅️ Prev Ch';
+        tocPrev.innerText = 'â¬…ï¸ Prev Ch';
         tocPrev.disabled = !hasPrevChapter;
         if (hasPrevChapter) {
             tocPrev.onclick = () => navigateToNextChapter(currentMangaPageIdx + 1);
@@ -365,12 +365,12 @@ function renderReaderContent() {
 
         const tocHome = document.createElement('button');
         tocHome.className = 'toc-nav-btn';
-        tocHome.innerText = '📋 TOC (Daftar Isi)';
+        tocHome.innerText = 'ðŸ“‹ TOC (Daftar Isi)';
         tocHome.onclick = () => handleBackAction();
 
         const tocNext = document.createElement('button');
         tocNext.className = 'toc-nav-btn';
-        tocNext.innerText = 'Next Ch ➡️';
+        tocNext.innerText = 'Next Ch âž¡ï¸';
         tocNext.disabled = !hasNextChapter;
         if (hasNextChapter) {
             tocNext.onclick = () => navigateToNextChapter(currentMangaPageIdx - 1);
@@ -774,7 +774,7 @@ async function uploadNewChapterFromModal() {
         progressText.innerText = "Status: Kesalahan pengiriman bab.";
         progressText.style.color = "#ef4444";
     } finally {
-        uploadBtn.innerText = "🚀 Terbitkan Bab Baru";
+        uploadBtn.innerText = "ðŸš€ Terbitkan Bab Baru";
         uploadBtn.disabled = false;
     }
 }

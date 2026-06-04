@@ -4,26 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParagiMaca - Katalog Komik Modern</title>
-    
-    <!-- PWA Meta Tags untuk Deteksi Instalasi Smartphone -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#18181c">
-    
-    <!-- Dukungan Eksklusif iOS (iPhone/iPad) -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://i.ibb.co/R4PNCgBD/Gemini-Generated-Image-stlv2rstlv2rstlv.png">
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header class="viewer-header">
         <div class="header-left">
-            <!-- Brand ParagiMaca dengan Logo Baru di samping teks -->
-            <h1 onclick="filterByNav('all', null); navigateTo('catalog')" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                <img src="https://i.ibb.co/R4PNCgBD/Gemini-Generated-Image-stlv2rstlv2rstlv.png" alt="Logo ParagiMaca" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
-                ParagiMaca
-            </h1>
+            <h1 onclick="filterByNav('all', null); navigateTo('catalog')" style="cursor: pointer;">ParagiMaca</h1>
             <!-- Menu Baru di samping brand ParagiMaca -->
             <button id="nav-editor-btn" class="header-link-btn" onclick="navigateTo('editor')">✍️ UPLOAD</button>
         </div>

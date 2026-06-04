@@ -37,17 +37,40 @@ function resetExternalToken() {
     }
 }
 
+// Helper delay untuk menghindari pembatasan rate-limit api dari ImgBB
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
 // Fungsi Helper untuk Upload ke ImgBB agar kodenya bersih
 async function uploadToImgBB(file) {
     const formData = new FormData();
     formData.append('image', file);
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { 
-        method: 'POST', 
-        body: formData 
-    });
-    const data = await res.json();
-    if (!data.success) throw new Error("Gagal mengunggah foto ke server ImgBB.");
-    return data.data.url;
+    
+    // Melakukan percobaan hingga 2 kali jika terjadi kegagalan jaringan sementara
+    let attempt = 0;
+    while (attempt < 2) {
+        try {
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { 
+                method: 'POST', 
+                body: formData 
+            });
+            
+            if (!res.ok) {
+                throw new Error(`HTTP Error! status: ${res.status}`);
+            }
+            
+            const data = await res.json();
+            if (data && data.success && data.data && data.data.url) {
+                return data.data.url;
+            } else {
+                throw new Error(data.error?.message || "Respons API ImgBB menyatakan kegagalan.");
+            }
+        } catch (error) {
+            attempt++;
+            if (attempt >= 2) throw error;
+            console.warn(`Unggahan gagal, mencoba kembali dalam 1 detik... (Percobaan ${attempt})`);
+            await delay(1000);
+        }
+    }
 }
 
 let allMangaData = [];
@@ -428,7 +451,7 @@ function scrollToExtreme(direction) {
 }
 
 // -----------------------------------------------------
-// FUNGSI UPLOAD (DIPERBAIKI DENGAN FUNGSI HELPER)
+// FUNGSI UPLOAD (DIPERBAIKI DENGAN PENANGANAN EROR AKURAT)
 // -----------------------------------------------------
 async function executeUploadAction() {
     const uploadBtn = document.getElementById('upload-status-btn');
@@ -471,6 +494,7 @@ async function executeUploadAction() {
 
             progressText.innerText = "Status: Mengunggah cover komik...";
             uploadedCoverUrl = await uploadToImgBB(coverFile);
+            await delay(500); // Berikan jeda sejenak untuk stabilitas API
         } else {
             const selectedId = document.getElementById('existing-manga-select').value;
             targetManga = allMangaData.find(m => m.id === selectedId);
@@ -480,6 +504,7 @@ async function executeUploadAction() {
         const sortedFiles = Array.from(pageFiles).sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
         let uploadedPageUrls = [];
         let count = 1;
+        let failedUploadsCount = 0;
         
         for (const singleFile of sortedFiles) {
             const percent = Math.round((count / sortedFiles.length) * 100);
@@ -487,13 +512,26 @@ async function executeUploadAction() {
             try {
                 const pUrl = await uploadToImgBB(singleFile);
                 uploadedPageUrls.push(pUrl);
+                await delay(300); // Jeda kecil antar unggahan halaman
             } catch (e) {
-                console.warn(`Gagal unggah hal ${count}. Melanjutkan...`);
+                console.error(`Gagal unggah hal ${count}:`, e);
+                failedUploadsCount++;
             }
             count++;
         }
 
-        if (uploadedPageUrls.length === 0) throw new Error("Gagal mengunggah lembaran halaman komik.");
+        // Jika semua file gagal diunggah ke ImgBB
+        if (uploadedPageUrls.length === 0) {
+            throw new Error("Gagal mengunggah lembaran halaman komik ke ImgBB. Pastikan koneksi stabil dan API Key masih aktif.");
+        }
+
+        // Peringatan jika hanya sebagian gambar yang gagal diunggah
+        if (failedUploadsCount > 0) {
+            const confirmProceed = confirm(`Ada ${failedUploadsCount} halaman yang gagal diunggah karena kendala jaringan. Apakah Anda ingin melanjutkan proses publikasi dengan halaman yang berhasil saja (${uploadedPageUrls.length} halaman)?`);
+            if (!confirmProceed) {
+                throw new Error("Proses dihentikan oleh pengguna karena unggahan tidak lengkap.");
+            }
+        }
 
         const newChapterObject = { "chapter_number": chNumVal, "pages": uploadedPageUrls };
 
@@ -695,19 +733,29 @@ async function uploadNewChapterFromModal() {
         const sortedFiles = Array.from(pageFiles).sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
         let uploadedPageUrls = [];
         let count = 1;
+        let failedCount = 0;
 
         for (const singleFile of sortedFiles) {
             progressText.innerText = `Status: Mengunggah gambar (${count}/${sortedFiles.length})...`;
             try {
                 const pUrl = await uploadToImgBB(singleFile);
                 uploadedPageUrls.push(pUrl);
+                await delay(300);
             } catch (e) {
-                console.warn(`Gagal upload halaman ${count}`);
+                console.warn(`Gagal upload halaman ${count}:`, e);
+                failedCount++;
             }
             count++;
         }
 
-        if (uploadedPageUrls.length === 0) throw new Error("Gagal mengunggah lembaran halaman komik.");
+        if (uploadedPageUrls.length === 0) {
+            throw new Error("Gagal mengunggah lembaran halaman komik ke ImgBB. Periksa koneksi data internet Anda.");
+        }
+
+        if (failedCount > 0) {
+            const proceed = confirm(`Sebanyak ${failedCount} halaman gagal dimuat. Lanjutkan penyimpanan ${uploadedPageUrls.length} halaman sisanya?`);
+            if (!proceed) throw new Error("Pengunggahan bab dibatalkan oleh pengguna.");
+        }
 
         const newChapterObject = { "chapter_number": chNumVal, "pages": uploadedPageUrls };
 
@@ -789,16 +837,23 @@ async function saveMangaChanges() {
                 progressText.innerText = `Status: Memproses ${editBulkFiles.length} gambar baru...`;
                 const sortedFiles = Array.from(editBulkFiles).sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
                 let count = 1;
+                let failedCount = 0;
                 
                 for (const file of sortedFiles) {
                     progressText.innerText = `Status: ImgBB Upload Edit (${count}/${editBulkFiles.length})...`;
                     try {
                         const url = await uploadToImgBB(file);
                         finalPages.push(url);
+                        await delay(300);
                     } catch(e) {
-                        console.warn("Gagal upload halaman", count);
+                        console.warn("Gagal upload halaman", count, e);
+                        failedCount++;
                     }
                     count++;
+                }
+
+                if (finalPages.length === 0) {
+                    throw new Error("Gagal mengunggah semua gambar edit massal.");
                 }
             } else {
                 // JIKA TIDAK, AMBIL DARI URL TEKS MANUAL

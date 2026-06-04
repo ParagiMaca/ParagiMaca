@@ -43,7 +43,8 @@ function resetExternalToken() {
 let allMangaData = [];
 let currentSelectedManga = null;
 let currentReaderMode = "webtoon";
-let currentMangaPageIdx = 0; 
+let currentChapterIdx = 0;   // Menyimpan index bab aktif saat ini
+let currentPageIdx = 0;      // Menyimpan index halaman gambar aktif saat ini (untuk mode manga)
 let currentPageState = "catalog";
 let currentNavType = "all"; 
 
@@ -132,6 +133,9 @@ async function fetchMangaData() {
             
             displayCatalog(allMangaData);
             populateMangaDropdown(); 
+            
+            // Pulihkan halaman terakhir sesaat setelah database selesai dimuat
+            restoreAppState();
         } else {
             let errorMsg = `Gagal terhubung (Status: ${response.status})`;
             if (response.status === 401 || response.status === 403) {
@@ -297,7 +301,8 @@ function readFirstChapter() {
 }
 
 function startReading(idx) {
-    currentMangaPageIdx = idx;
+    currentChapterIdx = idx;
+    currentPageIdx = 0; // Atur ulang index halaman ke awal bab
     navigateTo('reader');
     renderReaderContent();
 }
@@ -310,8 +315,8 @@ function renderReaderContent() {
     if (!currentSelectedManga) return;
 
     let pagesToRender = [];
-    if (currentSelectedManga.chapters && currentSelectedManga.chapters[currentMangaPageIdx]) {
-        pagesToRender = currentSelectedManga.chapters[currentMangaPageIdx].pages || [];
+    if (currentSelectedManga.chapters && currentSelectedManga.chapters[currentChapterIdx]) {
+        pagesToRender = currentSelectedManga.chapters[currentChapterIdx].pages || [];
     } else {
         pagesToRender = [currentSelectedManga.cover];
     }
@@ -334,16 +339,16 @@ function renderReaderContent() {
         const bottomNavWrapper = document.createElement('div');
         bottomNavWrapper.style.cssText = "padding: 30px 12px; display: flex; flex-direction: column; gap: 12px; align-items: center; background: #0b0b0d;";
 
-        const hasNextChapter = currentMangaPageIdx > 0;
-        const hasPrevChapter = currentSelectedManga.chapters && currentMangaPageIdx < currentSelectedManga.chapters.length - 1;
+        const hasNextChapter = currentChapterIdx > 0;
+        const hasPrevChapter = currentSelectedManga.chapters && currentChapterIdx < currentSelectedManga.chapters.length - 1;
 
         if (hasNextChapter) {
-            const nextChObj = currentSelectedManga.chapters[currentMangaPageIdx - 1];
+            const nextChObj = currentSelectedManga.chapters[currentChapterIdx - 1];
             const nextBtn = document.createElement('button');
             nextBtn.className = "primary-btn";
             nextBtn.style.cssText = "background: #2563eb; width: 100%; max-width: 400px; padding: 12px; font-size: 0.9rem; border-radius: 6px; box-shadow: 0 4px 12px rgba(37,99,235,0.2); cursor: pointer;";
             nextBtn.innerText = `Selanjutnya: Chapter ${nextChObj.chapter_number} ➡`;
-            nextBtn.onclick = () => navigateToNextChapter(currentMangaPageIdx - 1);
+            nextBtn.onclick = () => navigateToNextChapter(currentChapterIdx - 1);
             bottomNavWrapper.appendChild(nextBtn);
         } else {
             const infoText = document.createElement('p');
@@ -360,7 +365,7 @@ function renderReaderContent() {
         tocPrev.innerText = '⬅️ Prev Ch';
         tocPrev.disabled = !hasPrevChapter;
         if (hasPrevChapter) {
-            tocPrev.onclick = () => navigateToNextChapter(currentMangaPageIdx + 1);
+            tocPrev.onclick = () => navigateToNextChapter(currentChapterIdx + 1);
         }
 
         const tocHome = document.createElement('button');
@@ -373,7 +378,7 @@ function renderReaderContent() {
         tocNext.innerText = 'Next Ch ➡️';
         tocNext.disabled = !hasNextChapter;
         if (hasNextChapter) {
-            tocNext.onclick = () => navigateToNextChapter(currentMangaPageIdx - 1);
+            tocNext.onclick = () => navigateToNextChapter(currentChapterIdx - 1);
         }
 
         tocBlock.appendChild(tocPrev);
@@ -385,13 +390,13 @@ function renderReaderContent() {
 
     } else {
         navButtons.style.display = "flex";
-        document.getElementById('page-indicator').innerText = `${currentMangaPageIdx + 1} / ${pagesToRender.length}`;
+        document.getElementById('page-indicator').innerText = `${currentPageIdx + 1} / ${pagesToRender.length}`;
         
         const wrapper = document.createElement('div');
         wrapper.className = "manga-mode-layout";
         
         const img = document.createElement('img');
-        img.src = pagesToRender[currentMangaPageIdx].trim();
+        img.src = pagesToRender[currentPageIdx] ? pagesToRender[currentPageIdx].trim() : '';
         img.onclick = nextPage;
         wrapper.appendChild(img);
         reader.appendChild(wrapper);
@@ -401,31 +406,36 @@ function renderReaderContent() {
 }
 
 function navigateToNextChapter(targetChapterIdx) {
-    currentMangaPageIdx = targetChapterIdx;
+    currentChapterIdx = targetChapterIdx;
+    currentPageIdx = 0; // Atur ulang index halaman untuk bab baru
     renderReaderContent();
+    saveAppState();
 }
 
 function switchReaderMode(mode) { 
     currentReaderMode = mode; 
-    currentMangaPageIdx = 0;
+    currentPageIdx = 0;
     renderReaderContent(); 
+    saveAppState();
 }
 
 function nextPage() { 
     let maxPages = 0;
-    if (currentSelectedManga.chapters && currentSelectedManga.chapters[currentMangaPageIdx]) {
-        maxPages = currentSelectedManga.chapters[currentMangaPageIdx].pages.length;
+    if (currentSelectedManga.chapters && currentSelectedManga.chapters[currentChapterIdx]) {
+        maxPages = currentSelectedManga.chapters[currentChapterIdx].pages.length;
     }
-    if (currentMangaPageIdx < maxPages - 1) { 
-        currentMangaPageIdx++; 
+    if (currentPageIdx < maxPages - 1) { 
+        currentPageIdx++; 
         renderReaderContent(); 
+        saveAppState();
     } 
 }
 
 function prevPage() {
-    if (currentMangaPageIdx > 0) {
-        currentMangaPageIdx--;
+    if (currentPageIdx > 0) {
+        currentPageIdx--;
         renderReaderContent();
+        saveAppState();
     }
 }
 
@@ -676,7 +686,7 @@ function addNewPageUrlRow() {
     row.innerHTML = `
         <span class="page-num-lbl">Hal ${newIdx}</span>
         <input type="text" class="edit-page-url-input" value="" placeholder="Masukkan Link URL Gambar Baru...">
-        <button type="button" class="del-page-row-btn" onclick="this.parentElement.remove(); reindexPageLabels();">&times;</button>
+        <button type="button" class="del-page-row-btn" onclick="this.parentElement.remove(); reindexPageLabels();">&button>
     `;
     listWrapper.appendChild(row);
 }
@@ -891,6 +901,61 @@ async function pushDatabaseUpdate(commitMessage) {
     }
 }
 
+// 3. FUNGSI PENYIMPANAN DAN RESTORE STATE (ANTI-RESET SAAT RELOAD)
+function saveAppState() {
+    const state = {
+        currentPageState: currentPageState,
+        currentSelectedMangaId: currentSelectedManga ? currentSelectedManga.id : null,
+        currentChapterIdx: currentChapterIdx,
+        currentPageIdx: currentPageIdx,
+        currentReaderMode: currentReaderMode
+    };
+    sessionStorage.setItem('paragimaca_saved_state', JSON.stringify(state));
+}
+
+function restoreAppState() {
+    const saved = sessionStorage.getItem('paragimaca_saved_state');
+    if (!saved) return;
+    
+    try {
+        const state = JSON.parse(saved);
+        if (!state) return;
+        
+        if (state.currentReaderMode) {
+            currentReaderMode = state.currentReaderMode;
+            const modeSelect = document.getElementById('mode-select');
+            if (modeSelect) modeSelect.value = currentReaderMode;
+        }
+
+        if (state.currentSelectedMangaId) {
+            const found = allMangaData.find(m => m.id === state.currentSelectedMangaId);
+            if (found) {
+                currentSelectedManga = found;
+                currentChapterIdx = state.currentChapterIdx || 0;
+                currentPageIdx = state.currentPageIdx || 0;
+                
+                if (state.currentPageState === 'detail') {
+                    openMangaDetail(currentSelectedManga);
+                } else if (state.currentPageState === 'reader') {
+                    openMangaDetail(found); // Muat informasi detil sebagai background state
+                    currentPageState = 'reader';
+                    navigateTo('reader');
+                    renderReaderContent();
+                } else {
+                    navigateTo(state.currentPageState || 'catalog');
+                }
+                return;
+            }
+        }
+        
+        if (state.currentPageState && state.currentPageState !== 'catalog') {
+            navigateTo(state.currentPageState);
+        }
+    } catch (e) {
+        console.error("Gagal memulihkan status halaman ParagiMaca:", e);
+    }
+}
+
 function navigateTo(state) {
     currentPageState = state;
     document.getElementById('catalog-page').style.display = state === 'catalog' ? 'block' : 'none';
@@ -915,6 +980,9 @@ function navigateTo(state) {
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Simpan status setiap kali navigasi layar berubah
+    saveAppState();
 }
 
 function handleBackAction() {

@@ -712,7 +712,7 @@ async function uploadNewChapterFromModal() {
         return;
     }
 
-    const apiKey = '85e56ee4e01bcb8c426c77b81f29a68c'; 
+    const apiKey = 'dcc7ad0221271f70dc18e41030f004a8'; 
     uploadBtn.innerText = "Mengunggah...";
     uploadBtn.disabled = true;
     progressText.innerText = "Status: Mempersiapkan pengunggahan bab...";

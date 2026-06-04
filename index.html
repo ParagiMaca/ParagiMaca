@@ -4,130 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParagiMaca - Katalog Komik Modern</title>
-    
-    <!-- PWA Integration & App Branding -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#18181c">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://i.ibb.co/R4PNCgBD/Gemini-Generated-Image-stlv2rstlv2rstlv.png">
-    
-    <style>
-        :root {
-            --bg-dark: #0f0f12;
-            --bg-panel: #18181c;
-            --bg-hover: #27272a;
-            --accent: #3b82f6;
-            --accent-hover: #2563eb;
-            --text-main: #f4f4f5;
-            --text-muted: #a1a1aa;
-            --danger: #ef4444;
-            --success: #10b981;
-            --warning: #eab308;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; -webkit-font-smoothing: antialiased; }
-        a { color: var(--accent); text-decoration: none; }
-        
-        /* Header */
-        .viewer-header { background: var(--bg-panel); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bg-hover); position: sticky; top: 0; z-index: 100; }
-        .header-left { display: flex; align-items: center; gap: 20px; }
-        .header-left h1 { font-size: 1.2rem; font-weight: bold; margin: 0; }
-        .header-link-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; transition: 0.3s; }
-        .header-link-btn:hover, .header-link-btn.active { background: var(--accent); color: white; }
-        .clear-btn { background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-main); }
-
-        /* Navigation */
-        .category-nav { display: flex; gap: 15px; padding: 20px; overflow-x: auto; border-bottom: 1px solid var(--bg-hover); }
-        .nav-item { color: var(--text-muted); padding: 5px 10px; border-radius: 20px; white-space: nowrap; transition: 0.3s; }
-        .nav-item:hover, .nav-item.active { background: var(--accent); color: white; }
-
-        /* Filters */
-        .filter-panel-box { background: var(--bg-panel); margin: 20px; padding: 15px; border-radius: 8px; }
-        .filter-header-title { font-weight: bold; margin-bottom: 10px; color: var(--accent); }
-        .filter-grid-inputs { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-        .filter-group select { background: var(--bg-dark); color: var(--text-main); border: 1px solid var(--bg-hover); padding: 8px; border-radius: 4px; outline: none; width: 100%; min-width: 140px; }
-        .search-apply-btn { background: var(--accent); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-
-        /* Manga Grid */
-        .manga-grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 20px; }
-        .manga-card-box { background: var(--bg-panel); border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.2s; position: relative; }
-        .manga-card-box:hover { transform: translateY(-5px); }
-        .aspect-cover-holder { width: 100%; padding-top: 140%; position: relative; }
-        .aspect-cover-holder img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        .manga-meta-title { padding: 10px; font-size: 0.9rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
-
-        /* Details Page */
-        .detail-container { padding: 20px; max-width: 900px; margin: 0 auto; }
-        .detail-upper { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 30px; }
-        .detail-cover-box { width: 200px; flex-shrink: 0; border-radius: 8px; overflow: hidden; }
-        .detail-cover-box img { width: 100%; display: block; }
-        .status-badge { background: var(--accent); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; }
-        .genre-tag { background: var(--bg-hover); padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; margin-right: 5px; display: inline-block; margin-bottom: 5px; }
-        .detail-synopsis { margin: 15px 0; padding: 15px; background: var(--bg-panel); border-radius: 8px; }
-        .primary-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .primary-btn:hover { background: var(--accent-hover); }
-        .primary-btn:disabled { background: #555; cursor: not-allowed; }
-        
-        .chapter-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-        .chapter-item { background: var(--bg-panel); padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; cursor: pointer; transition: 0.2s; border: 1px solid var(--bg-hover); }
-        .chapter-item:hover { border-color: var(--accent); }
-
-        /* Reader */
-        .reader-controls { position: sticky; top: 60px; background: var(--bg-dark); padding: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 90; border-bottom: 1px solid var(--bg-hover); }
-        .reader-controls select { background: var(--bg-panel); color: white; border: 1px solid var(--bg-hover); padding: 5px; border-radius: 4px; }
-        .nav-arrow-btn { background: var(--bg-panel); color: white; border: 1px solid var(--bg-hover); padding: 5px 15px; border-radius: 4px; cursor: pointer; }
-        .webtoon-stream-clean { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 800px; margin: 0 auto; }
-        .webtoon-stream-clean img { width: 100%; display: block; margin: 0; padding: 0; }
-        .manga-mode-layout { display: flex; justify-content: center; align-items: center; min-height: 80vh; padding: 20px; }
-        .manga-mode-layout img { max-width: 100%; max-height: 90vh; object-fit: contain; cursor: pointer; }
-        .toc-navigation-block { display: flex; gap: 10px; margin-top: 15px; }
-        .toc-nav-btn { background: var(--bg-hover); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
-        .toc-nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        /* Editor & Forms */
-        .editor-page-container { padding: 20px; max-width: 800px; margin: 0 auto; }
-        .full-page-card { background: var(--bg-panel); padding: 20px; border-radius: 8px; border: 1px solid var(--bg-hover); }
-        .form-input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; width: 100%; }
-        .form-input-group input, .form-input-group select, .form-input-group textarea { background: var(--bg-dark); color: white; border: 1px solid var(--bg-hover); padding: 10px; border-radius: 6px; width: 100%; outline: none; }
-        .form-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        @media(max-width: 600px) { .form-grid-layout { grid-template-columns: 1fr; } }
-        .genre-checkbox-box, .genre-grid-checkbox { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; background: var(--bg-dark); padding: 15px; border-radius: 6px; border: 1px solid var(--bg-hover); max-height: 200px; overflow-y: auto; }
-        .file-picker-block { background: var(--bg-dark); padding: 10px; border-radius: 6px; border: 1px dashed var(--accent); margin-bottom: 10px; }
-        .file-picker-block input[type="file"] { margin-top: 5px; color: var(--text-muted); }
-
-        /* Modals */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
-        .modal-content { background: var(--bg-panel); width: 100%; max-width: 640px; border-radius: 8px; max-height: 90vh; display: flex; flex-direction: column; }
-        .modal-header { padding: 15px 20px; border-bottom: 1px solid var(--bg-hover); display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 20px; overflow-y: auto; }
-        .modal-footer { padding: 15px 20px; border-top: 1px solid var(--bg-hover); display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;}
-        .close-modal-btn { font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
-        .modal-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
-        .modal-tab-btn { flex: 1; padding: 10px; background: var(--bg-dark); border: 1px solid var(--bg-hover); color: white; cursor: pointer; border-radius: 6px; }
-        .modal-tab-btn.active { background: var(--accent); border-color: var(--accent); }
-        .action-light-btn { background: var(--bg-hover); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
-        .action-light-btn.danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-        
-        /* Floating Buttons */
-        .floating-controls { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 100; }
-        .scroll-float-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: white; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; opacity: 0.7; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .scroll-float-btn:hover { opacity: 1; }
-        .status-msg { text-align: center; color: var(--text-muted); margin-top: 20px; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header class="viewer-header">
         <div class="header-left">
-            <h1 onclick="filterByNav('all', null); navigateTo('catalog')" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                <img src="https://i.ibb.co/R4PNCgBD/Gemini-Generated-Image-stlv2rstlv2rstlv.png" alt="Logo ParagiMaca" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
-                ParagiMaca
-            </h1>
+            <h1 onclick="filterByNav('all', null); navigateTo('catalog')" style="cursor: pointer;">ParagiMaca</h1>
+            <!-- Menu Baru di samping brand ParagiMaca -->
             <button id="nav-editor-btn" class="header-link-btn" onclick="navigateTo('editor')">✍️ UPLOAD</button>
         </div>
         <div class="header-right">
-            <button id="back-btn" class="clear-btn" style="display: none;" onclick="handleBackAction()">⬅️ Kembali</button>
+            <button id="back-btn" class="clear-btn" style="display: none;" onclick="handleBackAction()">⬅️</button>
         </div>
     </header>
 
@@ -143,6 +30,7 @@
 
         <div class="filter-panel-box">
             <div class="filter-header-title">Komik + Update Terbaru</div>
+            
             <div class="filter-grid-inputs">
                 <div class="filter-group">
                     <select id="filter-sort">
@@ -159,6 +47,7 @@
                         <option value="Doujinshi">Doujinshi</option>
                     </select>
                 </div>
+                
                 <div class="filter-group">
                     <select id="filter-genre">
                         <option value="all">Semua Genre</option>
@@ -404,6 +293,7 @@
                         <option value="Yuri">Yuri</option>
                     </select>
                 </div>
+                
                 <div class="filter-group">
                     <select id="filter-status">
                         <option value="all">Semua Status</option>
@@ -415,76 +305,82 @@
             </div>
         </div>
 
-        <main class="manga-grid-layout" id="manga-container"></main>
+        <main class="manga-grid-layout" id="manga-container">
+        </main>
     </div>
 
-    <!-- HALAMAN EDITOR & KONTRIBUTOR -->
+    <!-- HALAMAN BARU: EDITOR & KONTRIBUTOR KOMIK -->
     <div id="editor-page" style="display: none;">
         <div class="editor-page-container">
-            <div style="margin-bottom: 20px;">
-                <h2 style="color: var(--accent);">Panel Kontributor</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Publikasikan karya komik terbaru Anda langsung ke database cloud server ParagiMaca.</p>
+            <div class="editor-header-box">
+                <h2 class="upload-section-title">Panel Kontributor: Tambah / Update Bab Komik</h2>
+                <p class="editor-sub-desc">Publikasikan karya komik terbaru Anda langsung ke database cloud server ParagiMaca.</p>
+                <a href="countdown_github.html" target="_blank" style="display: inline-block; margin-top: 8px; font-size: 0.75rem; color: #3b82f6; text-decoration: underline; font-weight: 650;">
+                    🔑 Periksa Sisa Waktu Aktif Token GitHub (89 Hari Lagi)
+                </a>
             </div>
 
-            <div class="full-page-card">
+            <div class="upload-section-box full-page-card">
                 <div class="form-grid-layout" style="margin-bottom: 12px;">
                     <div class="form-input-group">
-                        <label style="font-size: 0.85rem; color: var(--text-muted);">Tindakan Pemrosesan</label>
+                        <label class="editor-field-lbl">Tindakan Pemrosesan</label>
                         <select id="upload-action-type" onchange="toggleUploadMode(this.value)">
-                            <option value="new">Buat Judul Komik Baru</option>
-                            <option value="update">Update Chapter Komik Lama</option>
+                            <option value="new">Tindakan: Buat Judul Komik Baru</option>
+                            <option value="update">Tindakan: Update Chapter Komik Lama</option>
                         </select>
                     </div>
                     <div class="form-input-group" id="existing-manga-wrapper" style="display: none;">
-                        <label style="font-size: 0.85rem; color: var(--text-muted);">Pilih Judul Komik</label>
+                        <label class="editor-field-lbl">Pilih Judul Komik Sasaran</label>
                         <select id="existing-manga-select"></select>
                     </div>
                 </div>
 
                 <div class="form-grid-layout" id="meta-manga-fields">
                     <div class="form-input-group">
-                        <label style="font-size: 0.85rem; color: var(--text-muted);">Judul Komik Baru</label>
-                        <input type="text" id="manga-title-input" placeholder="Masukkan Judul...">
+                        <label class="editor-field-lbl">Judul Komik Baru</label>
+                        <input type="text" id="manga-title-input" placeholder="Masukkan Judul Komik Baru...">
                     </div>
                     <div class="form-input-group">
-                        <label style="font-size: 0.85rem; color: var(--text-muted);">Tipe Format</label>
+                        <label class="editor-field-lbl">Tipe Format</label>
                         <select id="manga-type-input">
-                            <option value="Manga">Manga</option>
-                            <option value="Manhua">Manhua</option>
-                            <option value="Manhwa">Manhwa</option>
-                            <option value="Doujinshi">Doujinshi</option>
+                            <option value="Manga">Tipe: Manga</option>
+                            <option value="Manhua">Tipe: Manhua</option>
+                            <option value="Manhwa">Tipe: Manhwa</option>
+                            <option value="Doujinshi">Tipe: Doujinshi</option>
                         </select>
                     </div>
+                    
                     <div class="form-input-group" style="grid-column: span 2;">
-                        <span style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; display: block;">Pilih Genre:</span>
-                        <div id="manga-genre-checkbox-container" class="genre-checkbox-box"></div>
+                        <span class="editor-field-lbl">Pilih Genre (Bisa Centang Banyak):</span>
+                        <div id="manga-genre-checkbox-container" class="genre-checkbox-box">
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-input-group" id="synopsis-wrapper">
-                    <label style="font-size: 0.85rem; color: var(--text-muted);">Sinopsis</label>
-                    <textarea id="manga-synopsis-input" rows="4" placeholder="Tulis sinopsis..."></textarea>
+                <div class="form-input-group" id="synopsis-wrapper" style="margin-top: 12px;">
+                    <label class="editor-field-lbl">Sinopsis / Ringkasan Cerita</label>
+                    <textarea id="manga-synopsis-input" rows="4" placeholder="Tulis ringkasan cerita atau sinopsis komik di sini..."></textarea>
                 </div>
 
-                <div class="form-input-group" style="max-width: 320px;">
-                    <label style="font-size: 0.85rem; color: var(--text-muted);">Nomor Chapter</label>
-                    <input type="text" id="chapter-num-input" placeholder="Contoh: 01, 02, 1.5">
+                <div class="form-input-group" style="margin-top: 12px; max-width: 320px;">
+                    <label class="editor-field-lbl">Nomor Bab/Chapter</label>
+                    <input type="text" id="chapter-num-input" placeholder="Nomor Chapter Baru (Contoh: 02, 03)">
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                <div class="upload-files-row" style="margin-top: 14px;">
                     <div class="file-picker-block" id="cover-picker-wrapper">
-                        <span style="font-size: 0.9rem; font-weight: bold; color: var(--accent);">1. Gambar Cover (Hanya untuk Komik Baru):</span>
+                        <span>1. Pilih Gambar Cover:</span>
                         <input type="file" id="imgbb-cover-input" accept="image/*">
                     </div>
                     <div class="file-picker-block">
-                        <span style="font-size: 0.9rem; font-weight: bold; color: var(--accent);">2. Gambar Isi Bab (Bisa Pilih Banyak File):</span>
+                        <span>2. Gambar Isi Bab (Bisa Banyak File):</span>
                         <input type="file" id="imgbb-pages-input" accept="image/*" multiple>
                     </div>
                 </div>
 
-                <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                    <div id="upload-progress-text" style="font-size: 0.85rem; color: var(--warning); font-weight: bold;">Status: Siap memproses.</div>
-                    <button id="upload-status-btn" class="primary-btn" onclick="executeUploadAction()">🚀 Terbitkan Update</button>
+                <div class="editor-action-footer" style="margin-top: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div id="upload-progress-text" style="font-size: 0.8rem; color: #eab308; font-weight: 600;">Status: Siap memproses formulir.</div>
+                    <button id="upload-status-btn" class="primary-btn" style="min-width: 160px; padding: 10px 20px;">Terbitkan Update</button>
                 </div>
             </div>
         </div>
@@ -495,51 +391,54 @@
         <div class="detail-container">
             <div class="detail-upper">
                 <div class="detail-cover-box">
-                    <img id="detail-cover" src="" alt="Cover">
+                    <img id="detail-cover" src="" alt="Manga Cover">
                 </div>
-                <div style="flex: 1; min-width: 250px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h2 id="detail-title" style="margin-bottom: 10px;">Judul Komik</h2>
-                        <button onclick="openEditPostModal()" style="background:transparent; border:none; cursor:pointer; font-size:1.2rem;" title="Edit Komik">✏️</button>
+                <div class="detail-info" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px;">
+                        <h2 id="detail-title">Judul Komik</h2>
+                        <button class="edit-manga-btn" onclick="openEditPostModal()">✏️</button>
                     </div>
-                    <p style="margin-bottom: 10px; font-size: 0.9rem;">Status: <span class="status-badge" id="detail-status-text">Ongoing</span></p>
-                    <div id="detail-genres-container"></div>
+                    <p class="detail-author" style="margin-top: 6px;">Status: <span class="status-badge" id="detail-status-text">Ongoing</span></p>
+                    <div class="detail-genres" id="detail-genres-container"></div>
                     <div class="detail-synopsis">
-                        <h3 style="font-size: 1rem; margin-bottom: 5px; color: var(--accent);">Sinopsis</h3>
-                        <p id="detail-synopsis-text" style="font-size: 0.9rem; color: var(--text-muted);"></p>
+                        <h3>Sinopsis</h3>
+                        <p id="detail-synopsis-text">Kisah seru petualangan.</p>
                     </div>
-                    <button class="primary-btn" onclick="readFirstChapter()" style="width: 100%; margin-top: 10px;">Baca Chapter Pertama</button>
+                    <div class="detail-actions">
+                        <button class="primary-btn" onclick="readFirstChapter()">Baca Chapter Pertama</button>
+                    </div>
                 </div>
             </div>
-            <div>
-                <h3 style="border-bottom: 2px solid var(--bg-hover); padding-bottom: 10px;">Daftar Chapter</h3>
+            <div class="chapter-section">
+                <h3>Daftar Chapter</h3>
                 <div class="chapter-list" id="chapter-list-container"></div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL EDIT KOMIK -->
+    <!-- FORM MODAL EDIT POSTINGAN (INTERAKTIF) -->
     <div id="edit-post-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Sunting Komik</h3>
+                <h3>Sunting Informasi & Postingan Komik</h3>
                 <span class="close-modal-btn" onclick="closeEditPostModal()">&times;</span>
             </div>
             <div class="modal-body">
+                <!-- TABS UNTUK MEMBEDAKAN EDIT POST vs UNGGUH CHAPTER BARU DI SUNTINGAN -->
                 <div class="modal-tabs">
-                    <button class="modal-tab-btn active" id="tab-edit-meta" onclick="switchModalTab('meta')">ℹ️ Info Utama</button>
+                    <button class="modal-tab-btn active" id="tab-edit-meta" onclick="switchModalTab('meta')">ℹ️ Sunting Info Utama</button>
                     <button class="modal-tab-btn" id="tab-upload-chap" onclick="switchModalTab('upload')">➕ Unggah Bab Baru</button>
                 </div>
 
-                <!-- TAB METADATA & EDIT GAMBAR LAMA -->
+                <!-- KONTEN TAB 1: SUNTING METADATA UTAMA -->
                 <div id="modal-tab-content-meta">
-                    <div class="form-input-group">
-                        <label style="font-size: 0.8rem;">Judul Komik</label>
-                        <input type="text" id="edit-manga-title">
+                    <div class="form-input-group" style="margin-bottom: 12px;">
+                        <label class="field-label">Judul Komik</label>
+                        <input type="text" id="edit-manga-title" placeholder="Ubah judul...">
                     </div>
-                    <div class="form-grid-layout">
+                    <div class="form-grid-layout" style="margin-bottom: 12px;">
                         <div class="form-input-group">
-                            <label style="font-size: 0.8rem;">Tipe</label>
+                            <label class="field-label">Tipe</label>
                             <select id="edit-manga-type">
                                 <option value="Manga">Manga</option>
                                 <option value="Manhua">Manhua</option>
@@ -548,92 +447,112 @@
                             </select>
                         </div>
                         <div class="form-input-group">
-                            <label style="font-size: 0.8rem;">Status</label>
+                            <label class="field-label">Status</label>
                             <select id="edit-manga-status">
                                 <option value="Ongoing">Ongoing</option>
                                 <option value="Tamat">Tamat</option>
                             </select>
                         </div>
                     </div>
-                    <div class="form-input-group">
-                        <label style="font-size: 0.8rem;">Tautan Gambar Cover</label>
-                        <input type="text" id="edit-manga-cover">
+                    <div class="form-input-group" style="margin-bottom: 12px;">
+                        <label class="field-label">Tautan Teks Gambar Cover</label>
+                        <input type="text" id="edit-manga-cover" placeholder="Masukkan URL cover baru...">
                     </div>
-                    <div class="form-input-group">
-                        <label style="font-size: 0.8rem;">Sinopsis</label>
-                        <textarea id="edit-manga-synopsis" rows="3"></textarea>
-                    </div>
-                    <div class="form-input-group">
-                        <label style="font-size: 0.8rem;">Genre</label>
-                        <div id="edit-genre-checkbox-container" class="genre-grid-checkbox"></div>
+                    <div class="form-input-group" style="margin-bottom: 12px;">
+                        <label class="field-label">Sinopsis / Ringkasan Cerita</label>
+                        <textarea id="edit-manga-synopsis" rows="4" placeholder="Ubah sinopsis cerita..."></textarea>
                     </div>
 
-                    <div style="margin-top: 20px; background: var(--bg-dark); padding: 15px; border-radius: 8px;">
-                        <h4 style="color: var(--accent); margin-bottom: 10px;">Kelola Gambar Bab Lama</h4>
-                        <select id="edit-chapter-select" onchange="loadChapterPagesToEditor(this.value)" style="width: 100%; padding: 8px; background: var(--bg-panel); color: white; border: 1px solid var(--bg-hover); border-radius: 4px; margin-bottom: 15px;">
-                            <option value="">Pilih Chapter yang Ingin Diedit...</option>
-                        </select>
+                    <div class="form-input-group" style="margin-bottom: 16px;">
+                        <label class="field-label">Genre Komik</label>
+                        <div id="edit-genre-checkbox-container" class="genre-grid-checkbox">
+                        </div>
+                    </div>
+
+                    <div class="edit-chapter-list-section">
+                        <div class="section-sub-header">
+                            <h4>Kelola Daftar Bab & Gambar</h4>
+                            <select id="edit-chapter-select" onchange="loadChapterPagesToEditor(this.value)" style="background: #202024; color: #fff; padding: 4px; border-radius: 4px; font-size: 0.8rem; border:1px solid #27272a;">
+                                <option value="">Pilih Chapter...</option>
+                            </select>
+                        </div>
                         
-                        <div id="editor-chapter-pages-container" style="display:none;">
-                            <!-- FITUR GANTI GAMBAR MASSAL LOKAL -->
-                            <div class="file-picker-block" style="border-color: var(--warning);">
-                                <label style="display: block; font-size: 0.8rem; color: var(--warning); margin-bottom: 5px; font-weight: bold;">⚡ Ganti / Timpa Semua Gambar Bab Ini dari File Lokal:</label>
-                                <input type="file" id="edit-chapter-pages-bulk-input" accept="image/*" multiple>
-                                <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">*Jika Anda memilih file di sini, URL di bawah akan diabaikan dan diganti dengan file baru dari PC/HP Anda.</p>
+                        <!-- PANEL MANAGEMEN SEBARAN GAMBAR PER CHAPTER -->
+                        <div id="editor-chapter-pages-container" style="display:none; margin-top:10px;">
+                            <p style="font-size: 0.75rem; color:#a1a1aa; margin-bottom:8px;">
+                                Anda dapat mengedit langsung tautan gambar di bawah ini atau <strong>pilih file lokal</strong> untuk mengganti gambar bab tersebut.
+                            </p>
+                            
+                            <!-- Box Upload File Lokal Massal untuk Mengganti Semua Gambar di Chapter Ini -->
+                            <div style="background: #18181c; padding: 10px; border-radius: 5px; border: 1px dashed #3b82f6; margin-bottom: 12px;">
+                                <label style="display: block; font-size: 0.75rem; color: #3b82f6; font-weight: 600; margin-bottom: 4px;">⚡ Ganti / Timpa Semua Gambar dari File Lokal:</label>
+                                <input type="file" id="edit-chapter-pages-bulk-input" accept="image/*" multiple style="font-size: 0.75rem; color:#ccc; width: 100%;">
+                                <p style="font-size: 0.65rem; color:#888; margin-top: 4px;">*Mengunggah file di sini akan mengganti daftar halaman di bawah ini setelah file selesai diproses saat tombol simpan ditekan.</p>
                             </div>
 
-                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Atau edit URL gambar secara manual di bawah ini:</p>
-                            <div id="pages-edit-list" style="display:flex; flex-direction:column; gap:8px; max-height:200px; overflow-y:auto; padding:10px; background: #111; border-radius:6px;"></div>
+                            <div id="pages-edit-list" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; padding:6px; background:#111; border-radius:5px; border:1px solid #27272a;">
+                            </div>
                             
-                            <div style="margin-top: 10px; display:flex; gap:10px;">
-                                <button type="button" class="action-light-btn" onclick="addNewPageUrlRow()">➕ Tambah Baris Manual</button>
+                            <div style="margin-top: 8px; display:flex; gap:6px; flex-wrap: wrap;">
+                                <button type="button" class="action-light-btn" onclick="addNewPageUrlRow()">➕ Tambah Baris Halaman Manual</button>
                                 <button type="button" class="action-light-btn danger" onclick="deleteCurrentChapter()">🗑️ Hapus Bab Ini</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- TAB UNGGAH BAB DARI MODAL -->
+                <!-- KONTEN TAB 2: UNGGUH CHAPTER BARU LANGSUNG DARI MODAL -->
                 <div id="modal-tab-content-upload" style="display: none;">
-                    <div class="form-input-group" style="max-width: 200px;">
-                        <label style="font-size: 0.8rem;">Nomor Bab Baru</label>
-                        <input type="text" id="modal-chapter-num-input" placeholder="Contoh: 03">
+                    <div class="upload-subpanel-box" style="background: #202024; padding: 12px; border-radius: 6px; border: 1px solid #27272a;">
+                        <h4 style="font-size: 0.85rem; color: #3b82f6; margin-bottom: 10px;">Unggah Chapter Baru untuk Komik Ini</h4>
+                        
+                        <div class="form-input-group" style="margin-bottom: 12px; max-width: 200px;">
+                            <label class="field-label">Nomor Bab/Chapter Baru</label>
+                            <input type="text" id="modal-chapter-num-input" placeholder="Contoh: 02, 03, 03.5">
+                        </div>
+
+                        <div class="file-picker-block" style="margin-bottom: 14px;">
+                            <span class="field-label" style="margin-bottom: 6px;">Gambar Isi Bab (Bisa Banyak File):</span>
+                            <input type="file" id="modal-imgbb-pages-input" accept="image/*" multiple style="background: #18181c; color:#fff; border: 1px solid #27272a; padding: 6px; border-radius:4px; font-size: 0.78rem;">
+                        </div>
+
+                        <button id="modal-chapter-upload-btn" class="primary-btn" onclick="uploadNewChapterFromModal()" style="background: #10b981; width: 100%; padding: 10px; font-weight: bold;">
+                            🚀 Terbitkan Bab Baru
+                        </button>
                     </div>
-                    <div class="file-picker-block">
-                        <span style="font-size: 0.9rem; color: var(--accent); font-weight: bold;">Gambar Isi Bab (Bisa Banyak File):</span>
-                        <input type="file" id="modal-imgbb-pages-input" accept="image/*" multiple style="width: 100%;">
-                    </div>
-                    <button class="primary-btn" id="modal-chapter-upload-btn" onclick="uploadNewChapterFromModal()" style="width: 100%; margin-top: 10px; background: var(--success);">🚀 Terbitkan Bab Baru</button>
                 </div>
             </div>
             
             <div class="modal-footer">
-                <div id="edit-progress-text" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Siap melakukan perubahan.</div>
-                <button class="primary-btn" id="save-edit-btn" onclick="saveMangaChanges()">Simpan Perubahan</button>
+                <div id="edit-progress-text" style="font-size: 0.8rem; color:#a1a1aa; font-weight:600;">Siap melakukan perubahan.</div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="action-light-btn" onclick="closeEditPostModal()" style="background:#27272a; color:#fff;">Batal</button>
+                    <button class="primary-btn" id="save-edit-btn" onclick="saveMangaChanges()" style="padding: 8px 20px;">Simpan Perubahan</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- HALAMAN PEMBACA / READER -->
+    <!-- HALAMAN MEMBACA (READER) -->
     <div id="reader-page" style="display: none;">
         <div class="reader-controls">
-            <span id="page-indicator" style="color: white; font-weight: bold; font-size: 0.9rem;">1 / 1</span>
             <select id="mode-select" onchange="switchReaderMode(this.value)">
-                <option value="webtoon">Mode Webtoon (Scroll)</option>
-                <option value="manga">Mode Manga (Geser)</option>
+                <option value="webtoon">Webtoon (Scroll)</option>
+                <option value="manga">Manga (Per Halaman)</option>
             </select>
+            <div id="manga-nav-buttons" style="display: none; gap: 8px; align-items: center;">
+                <button class="nav-arrow-btn" onclick="prevPage()">◀ Kiri</button>
+                <span id="page-indicator">1 / 1</span>
+                <button class="nav-arrow-btn" onclick="nextPage()">Kanan ▶</button>
+            </div>
         </div>
-        <div id="reader-container"></div>
-        <div id="manga-nav-buttons" style="display: flex; justify-content: center; gap: 20px; padding: 20px; background: var(--bg-dark);">
-            <button class="nav-arrow-btn" onclick="prevPage()">⬅️ Sebelumnya</button>
-            <button class="nav-arrow-btn" onclick="nextPage()">Selanjutnya ➡️</button>
-        </div>
+        <main id="reader-container"></main>
     </div>
 
-    <!-- FLOATING SCROLLER -->
-    <div class="floating-controls" id="floating-scroller-controls" style="display: none;">
-        <button class="scroll-float-btn" onclick="scrollToExtreme('up')">⬆️</button>
-        <button class="scroll-float-btn" onclick="scrollToExtreme('down')">⬇️</button>
+    <!-- TOMBOL MENGAMBANG UNTUK UP DAN DOWN DI HALAMAN READER -->
+    <div id="floating-scroller-controls" class="floating-controls" style="display: none;">
+        <button class="scroll-float-btn" onclick="scrollToExtreme('up')" title="Ke Atas (Awal Gambar)">▲</button>
+        <button class="scroll-float-btn" onclick="scrollToExtreme('down')" title="Ke Bawah (Akhir Gambar)">▼</button>
     </div>
 
     <script src="apps.js"></script>

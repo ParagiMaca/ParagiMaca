@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ParagiMaca - Katalog Komik Modern</title>
     
     <!-- PWA Integration & App Branding -->
@@ -24,104 +24,713 @@
             --danger: #ef4444;
             --success: #10b981;
             --warning: #eab308;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; -webkit-font-smoothing: antialiased; }
-        a { color: var(--accent); text-decoration: none; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-main); 
+            line-height: 1.5; 
+            -webkit-font-smoothing: antialiased; 
+            font-size: 0.9rem;
+        }
+
+        a { 
+            color: var(--accent); 
+            text-decoration: none; 
+        }
         
-        /* Header */
-        .viewer-header { background: var(--bg-panel); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bg-hover); position: sticky; top: 0; z-index: 100; }
-        .header-left { display: flex; align-items: center; gap: 20px; }
-        .header-left h1 { font-size: 1.2rem; font-weight: bold; margin: 0; }
-        .header-link-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; transition: 0.3s; }
-        .header-link-btn:hover, .header-link-btn.active { background: var(--accent); color: white; }
-        .clear-btn { background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-main); }
+        /* Header - Dioptimalkan untuk Mobile */
+        .viewer-header { 
+            background: var(--bg-panel); 
+            padding: 10px 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid var(--bg-hover); 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            height: 56px;
+        }
 
-        /* Navigation */
-        .category-nav { display: flex; gap: 15px; padding: 20px; overflow-x: auto; border-bottom: 1px solid var(--bg-hover); }
-        .nav-item { color: var(--text-muted); padding: 5px 10px; border-radius: 20px; white-space: nowrap; transition: 0.3s; }
-        .nav-item:hover, .nav-item.active { background: var(--accent); color: white; }
+        .header-left { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
 
-        /* Filters */
-        .filter-panel-box { background: var(--bg-panel); margin: 20px; padding: 15px; border-radius: 8px; }
-        .filter-header-title { font-weight: bold; margin-bottom: 10px; color: var(--accent); }
-        .filter-grid-inputs { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-        .filter-group select { background: var(--bg-dark); color: var(--text-main); border: 1px solid var(--bg-hover); padding: 8px; border-radius: 4px; outline: none; width: 100%; min-width: 140px; }
-        .search-apply-btn { background: var(--accent); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .header-left h1 { 
+            font-size: 1.05rem; 
+            font-weight: 700; 
+            margin: 0; 
+            letter-spacing: -0.025em;
+        }
 
-        /* Manga Grid */
-        .manga-grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 20px; }
-        .manga-card-box { background: var(--bg-panel); border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.2s; position: relative; }
-        .manga-card-box:hover { transform: translateY(-5px); }
-        .aspect-cover-holder { width: 100%; padding-top: 140%; position: relative; }
-        .aspect-cover-holder img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        .manga-meta-title { padding: 10px; font-size: 0.9rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+        .header-link-btn { 
+            background: transparent; 
+            border: 1px solid var(--accent); 
+            color: var(--accent); 
+            padding: 4px 10px; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            font-size: 0.75rem; 
+            font-weight: 600; 
+            transition: all 0.2s ease; 
+        }
 
-        /* Details Page */
-        .detail-container { padding: 20px; max-width: 900px; margin: 0 auto; }
-        .detail-upper { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 30px; }
-        .detail-cover-box { width: 200px; flex-shrink: 0; border-radius: 8px; overflow: hidden; }
-        .detail-cover-box img { width: 100%; display: block; }
-        .status-badge { background: var(--accent); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; }
-        .genre-tag { background: var(--bg-hover); padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; margin-right: 5px; display: inline-block; margin-bottom: 5px; }
-        .detail-synopsis { margin: 15px 0; padding: 15px; background: var(--bg-panel); border-radius: 8px; }
-        .primary-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .primary-btn:hover { background: var(--accent-hover); }
-        .primary-btn:disabled { background: #555; cursor: not-allowed; }
+        .header-link-btn:hover, .header-link-btn.active { 
+            background: var(--accent); 
+            color: white; 
+        }
+
+        .clear-btn { 
+            background: transparent; 
+            border: none; 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            color: var(--text-main); 
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Navigation - Scroll Horizontal Halus untuk Mobile */
+        .category-nav { 
+            display: flex; 
+            gap: 8px; 
+            padding: 12px 15px; 
+            overflow-x: auto; 
+            border-bottom: 1px solid var(--bg-hover); 
+            background: var(--bg-dark);
+            scrollbar-width: none; /* Menyembunyikan scrollbar Firefox */
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .category-nav::-webkit-scrollbar {
+            display: none; /* Menyembunyikan scrollbar Chrome/Safari */
+        }
+
+        .nav-item { 
+            color: var(--text-muted); 
+            padding: 5px 14px; 
+            border-radius: 20px; 
+            white-space: nowrap; 
+            transition: all 0.2s ease; 
+            font-size: 0.8rem;
+            font-weight: 500;
+            background: var(--bg-panel);
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active { 
+            background: var(--accent); 
+            color: white; 
+            border-color: var(--accent);
+        }
+
+        /* Filters - Ringkas & Hemat Ruang */
+        .filter-panel-box { 
+            background: var(--bg-panel); 
+            margin: 12px; 
+            padding: 12px; 
+            border-radius: 8px; 
+            border: 1px solid var(--bg-hover);
+        }
+
+        .filter-header-title { 
+            font-size: 0.85rem;
+            font-weight: 700; 
+            margin-bottom: 8px; 
+            color: var(--accent); 
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .filter-grid-inputs { 
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px; 
+            align-items: center; 
+        }
+
+        .filter-group {
+            width: 100%;
+        }
+
+        .filter-group select { 
+            background: var(--bg-dark); 
+            color: var(--text-main); 
+            border: 1px solid var(--bg-hover); 
+            padding: 8px 10px; 
+            border-radius: 6px; 
+            outline: none; 
+            width: 100%; 
+            font-size: 0.8rem;
+            height: 36px;
+        }
+
+        .search-apply-btn { 
+            grid-column: span 2;
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            padding: 8px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 0.85rem;
+            height: 36px;
+            transition: background 0.2s;
+        }
+
+        .search-apply-btn:active {
+            background: var(--accent-hover);
+        }
+
+        /* Manga Grid - Dioptimalkan agar pas dengan layar HP */
+        .manga-grid-layout { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); 
+            gap: 10px; 
+            padding: 12px; 
+        }
+
+        @media(min-width: 480px) {
+            .manga-grid-layout {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 12px;
+                padding: 15px;
+            }
+        }
+
+        .manga-card-box { 
+            background: var(--bg-panel); 
+            border-radius: 8px; 
+            overflow: hidden; 
+            cursor: pointer; 
+            transition: transform 0.2s, box-shadow 0.2s; 
+            position: relative; 
+            border: 1px solid var(--bg-hover);
+        }
+
+        .manga-card-box:active { 
+            transform: scale(0.97); 
+        }
+
+        .aspect-cover-holder { 
+            width: 100%; 
+            padding-top: 142%; 
+            position: relative; 
+            background: #202024;
+        }
+
+        .aspect-cover-holder img { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+
+        .manga-meta-title { 
+            padding: 8px 6px; 
+            font-size: 0.75rem; 
+            font-weight: 600; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            text-align: center; 
+            color: var(--text-main);
+        }
+
+        /* Details Page - Mobile Friendly */
+        .detail-container { 
+            padding: 12px; 
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+
+        .detail-upper { 
+            display: flex; 
+            gap: 15px; 
+            flex-direction: column; 
+            margin-bottom: 20px; 
+        }
+
+        @media(min-width: 600px) {
+            .detail-upper {
+                flex-direction: row;
+                gap: 20px;
+            }
+        }
+
+        .detail-cover-box { 
+            width: 130px; 
+            margin: 0 auto;
+            flex-shrink: 0; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            border: 1px solid var(--bg-hover);
+        }
+
+        @media(min-width: 600px) {
+            .detail-cover-box {
+                width: 180px;
+                margin: 0;
+            }
+        }
+
+        .detail-cover-box img { 
+            width: 100%; 
+            display: block; 
+        }
+
+        .detail-info-block {
+            text-align: center;
+        }
+
+        @media(min-width: 600px) {
+            .detail-info-block {
+                text-align: left;
+                flex: 1;
+            }
+        }
+
+        .status-badge { 
+            background: var(--accent); 
+            padding: 2px 8px; 
+            border-radius: 12px; 
+            font-size: 0.7rem; 
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .genre-tag { 
+            background: var(--bg-hover); 
+            padding: 3px 8px; 
+            border-radius: 4px; 
+            font-size: 0.75rem; 
+            margin-right: 4px; 
+            display: inline-block; 
+            margin-bottom: 4px; 
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .detail-synopsis { 
+            margin: 12px 0; 
+            padding: 12px; 
+            background: var(--bg-panel); 
+            border-radius: 8px; 
+            text-align: left;
+            border: 1px solid var(--bg-hover);
+        }
+
+        .primary-btn { 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            padding: 10px 16px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 0.85rem;
+            transition: all 0.2s ease; 
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .primary-btn:active { 
+            background: var(--accent-hover); 
+            transform: scale(0.98);
+        }
+
+        .primary-btn:disabled { 
+            background: #3f3f46; 
+            color: var(--text-muted);
+            cursor: not-allowed; 
+        }
         
-        .chapter-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-        .chapter-item { background: var(--bg-panel); padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; cursor: pointer; transition: 0.2s; border: 1px solid var(--bg-hover); }
-        .chapter-item:hover { border-color: var(--accent); }
+        /* List Chapter - Lebih Nyaman Ditap */
+        .chapter-list { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+            margin-top: 12px; 
+        }
 
-        /* Reader */
-        .reader-controls { position: sticky; top: 60px; background: var(--bg-dark); padding: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 90; border-bottom: 1px solid var(--bg-hover); }
-        .reader-controls select { background: var(--bg-panel); color: white; border: 1px solid var(--bg-hover); padding: 5px; border-radius: 4px; }
-        .nav-arrow-btn { background: var(--bg-panel); color: white; border: 1px solid var(--bg-hover); padding: 5px 15px; border-radius: 4px; cursor: pointer; }
-        .webtoon-stream-clean { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 800px; margin: 0 auto; }
-        .webtoon-stream-clean img { width: 100%; display: block; margin: 0; padding: 0; }
-        .manga-mode-layout { display: flex; justify-content: center; align-items: center; min-height: 80vh; padding: 20px; }
-        .manga-mode-layout img { max-width: 100%; max-height: 90vh; object-fit: contain; cursor: pointer; }
-        .toc-navigation-block { display: flex; gap: 10px; margin-top: 15px; }
-        .toc-nav-btn { background: var(--bg-hover); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
-        .toc-nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .chapter-item { 
+            background: var(--bg-panel); 
+            padding: 12px 15px; 
+            border-radius: 8px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            border: 1px solid var(--bg-hover); 
+            font-size: 0.85rem;
+        }
 
-        /* Editor & Forms */
-        .editor-page-container { padding: 20px; max-width: 800px; margin: 0 auto; }
-        .full-page-card { background: var(--bg-panel); padding: 20px; border-radius: 8px; border: 1px solid var(--bg-hover); }
-        .form-input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; width: 100%; }
-        .form-input-group input, .form-input-group select, .form-input-group textarea { background: var(--bg-dark); color: white; border: 1px solid var(--bg-hover); padding: 10px; border-radius: 6px; width: 100%; outline: none; }
-        .form-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        @media(max-width: 600px) { .form-grid-layout { grid-template-columns: 1fr; } }
-        .genre-checkbox-box, .genre-grid-checkbox { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; background: var(--bg-dark); padding: 15px; border-radius: 6px; border: 1px solid var(--bg-hover); max-height: 200px; overflow-y: auto; }
-        .file-picker-block { background: var(--bg-dark); padding: 10px; border-radius: 6px; border: 1px dashed var(--accent); margin-bottom: 10px; }
-        .file-picker-block input[type="file"] { margin-top: 5px; color: var(--text-muted); }
+        .chapter-item:active { 
+            border-color: var(--accent); 
+            background: var(--bg-hover);
+        }
 
-        /* Modals */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
-        .modal-content { background: var(--bg-panel); width: 100%; max-width: 640px; border-radius: 8px; max-height: 90vh; display: flex; flex-direction: column; }
-        .modal-header { padding: 15px 20px; border-bottom: 1px solid var(--bg-hover); display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 20px; overflow-y: auto; }
-        .modal-footer { padding: 15px 20px; border-top: 1px solid var(--bg-hover); display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;}
-        .close-modal-btn { font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
-        .modal-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
-        .modal-tab-btn { flex: 1; padding: 10px; background: var(--bg-dark); border: 1px solid var(--bg-hover); color: white; cursor: pointer; border-radius: 6px; }
-        .modal-tab-btn.active { background: var(--accent); border-color: var(--accent); }
-        .action-light-btn { background: var(--bg-hover); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
-        .action-light-btn.danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        /* Reader Page - Bebas Distraksi & Layar Penuh */
+        .reader-controls { 
+            position: sticky; 
+            top: 0; 
+            background: rgba(15, 15, 18, 0.95); 
+            backdrop-filter: blur(8px);
+            padding: 8px 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            z-index: 90; 
+            border-bottom: 1px solid var(--bg-hover); 
+            height: 48px;
+        }
+
+        .reader-controls select { 
+            background: var(--bg-panel); 
+            color: white; 
+            border: 1px solid var(--bg-hover); 
+            padding: 4px 8px; 
+            border-radius: 6px; 
+            font-size: 0.75rem;
+            outline: none;
+        }
+
+        .nav-arrow-btn { 
+            background: var(--bg-panel); 
+            color: white; 
+            border: 1px solid var(--bg-hover); 
+            padding: 8px 20px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .nav-arrow-btn:active {
+            background: var(--bg-hover);
+        }
+
+        .webtoon-stream-clean { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            width: 100%; 
+            max-width: 680px; 
+            margin: 0 auto; 
+            background: #000;
+        }
+
+        .webtoon-stream-clean img { 
+            width: 100%; 
+            display: block; 
+            margin: 0; 
+            padding: 0; 
+            height: auto;
+        }
+
+        .manga-mode-layout { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: calc(100vh - 120px); 
+            padding: 10px; 
+            background: #000;
+        }
+
+        .manga-mode-layout img { 
+            max-width: 100%; 
+            max-height: 82vh; 
+            object-fit: contain; 
+            cursor: pointer; 
+        }
+
+        /* Editor & Form Panel - Compact & Responsive */
+        .editor-page-container { 
+            padding: 12px; 
+            max-width: 700px; 
+            margin: 0 auto; 
+        }
+
+        .full-page-card { 
+            background: var(--bg-panel); 
+            padding: 15px; 
+            border-radius: 8px; 
+            border: 1px solid var(--bg-hover); 
+        }
+
+        .form-input-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 4px; 
+            margin-bottom: 12px; 
+            width: 100%; 
+        }
+
+        .form-input-group label {
+            font-size: 0.75rem; 
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .form-input-group input, 
+        .form-input-group select, 
+        .form-input-group textarea { 
+            background: var(--bg-dark); 
+            color: white; 
+            border: 1px solid var(--bg-hover); 
+            padding: 8px 10px; 
+            border-radius: 6px; 
+            width: 100%; 
+            outline: none; 
+            font-size: 0.85rem;
+        }
+
+        .form-input-group input:focus,
+        .form-input-group select:focus,
+        .form-input-group textarea:focus {
+            border-color: var(--accent);
+        }
+
+        .form-grid-layout { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 10px; 
+        }
+
+        @media(min-width: 480px) { 
+            .form-grid-layout { 
+                grid-template-columns: 1fr 1fr; 
+            } 
+        }
+
+        .genre-checkbox-box, .genre-grid-checkbox { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+            gap: 8px; 
+            background: var(--bg-dark); 
+            padding: 10px; 
+            border-radius: 6px; 
+            border: 1px solid var(--bg-hover); 
+            max-height: 150px; 
+            overflow-y: auto; 
+            font-size: 0.75rem;
+        }
+
+        .genre-checkbox-box label, .genre-grid-checkbox label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .file-picker-block { 
+            background: var(--bg-dark); 
+            padding: 10px; 
+            border-radius: 6px; 
+            border: 1px dashed var(--accent); 
+            margin-bottom: 8px; 
+        }
+
+        .file-picker-block span {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .file-picker-block input[type="file"] { 
+            margin-top: 5px; 
+            color: var(--text-muted); 
+            font-size: 0.75rem;
+            width: 100%;
+        }
+
+        /* Modals - Diperbaiki Agar Sempurna di HP */
+        .modal-overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            background: rgba(0,0,0,0.85); 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-end; /* Membuka dari bawah di mobile */
+            z-index: 1000; 
+        }
+
+        @media(min-width: 600px) {
+            .modal-overlay {
+                align-items: center;
+                padding: 15px;
+            }
+        }
+
+        .modal-content { 
+            background: var(--bg-panel); 
+            width: 100%; 
+            max-width: 600px; 
+            border-radius: 12px 12px 0 0; /* Rounded di atas untuk style bottom sheet */
+            max-height: 85vh; 
+            display: flex; 
+            flex-direction: column; 
+            border-top: 1px solid var(--bg-hover);
+        }
+
+        @media(min-width: 600px) {
+            .modal-content {
+                border-radius: 8px;
+                max-height: 90vh;
+                border: 1px solid var(--bg-hover);
+            }
+        }
+
+        .modal-header { 
+            padding: 12px 15px; 
+            border-bottom: 1px solid var(--bg-hover); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+
+        .modal-header h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .modal-body { 
+            padding: 15px; 
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .modal-footer { 
+            padding: 12px 15px; 
+            border-top: 1px solid var(--bg-hover); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            gap: 10px; 
+            flex-wrap: wrap;
+            padding-bottom: calc(12px + var(--safe-bottom));
+        }
+
+        .close-modal-btn { 
+            font-size: 1.3rem; 
+            cursor: pointer; 
+            color: var(--text-muted); 
+            padding: 4px;
+        }
+
+        .modal-tabs { 
+            display: flex; 
+            gap: 8px; 
+            margin-bottom: 12px; 
+        }
+
+        .modal-tab-btn { 
+            flex: 1; 
+            padding: 8px; 
+            background: var(--bg-dark); 
+            border: 1px solid var(--bg-hover); 
+            color: var(--text-muted); 
+            cursor: pointer; 
+            border-radius: 6px; 
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .modal-tab-btn.active { 
+            background: var(--accent); 
+            border-color: var(--accent); 
+            color: white;
+        }
+
+        .action-light-btn { 
+            background: var(--bg-hover); 
+            color: white; 
+            border: none; 
+            padding: 6px 12px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.75rem; 
+            font-weight: 500;
+        }
+
+        .action-light-btn.danger { 
+            background: rgba(239, 68, 68, 0.2); 
+            color: var(--danger); 
+        }
         
-        /* Floating Buttons */
-        .floating-controls { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 100; }
-        .scroll-float-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: white; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; opacity: 0.7; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .scroll-float-btn:hover { opacity: 1; }
-        .status-msg { text-align: center; color: var(--text-muted); margin-top: 20px; }
+        /* Floating Buttons - Responsif & Tidak Menghalangi Konten */
+        .floating-controls { 
+            position: fixed; 
+            bottom: 20px; 
+            right: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+            z-index: 100; 
+        }
+
+        .scroll-float-btn { 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 1rem; 
+            opacity: 0.8; 
+            transition: opacity 0.2s; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4); 
+        }
+
+        .scroll-float-btn:active { 
+            opacity: 1; 
+            transform: scale(0.95);
+        }
+
+        .status-msg { 
+            text-align: center; 
+            color: var(--text-muted); 
+            margin-top: 20px; 
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
     <header class="viewer-header">
         <div class="header-left">
             <h1 onclick="filterByNav('all', null); navigateTo('catalog')" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                <img src="https://i.ibb.co/R4PNCgBD/Gemini-Generated-Image-stlv2rstlv2rstlv.png" alt="Logo ParagiMaca" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
+                <img src="https://i.ibb.co/R4PNCgBD/Gemini-Generated-Image-stlv2rstlv2rstlv.png" alt="Logo ParagiMaca" style="width: 24px; height: 24px; border-radius: 5px; object-fit: cover;">
                 ParagiMaca
             </h1>
             <button id="nav-editor-btn" class="header-link-btn" onclick="navigateTo('editor')">✍️ UPLOAD</button>
@@ -159,7 +768,7 @@
                         <option value="Doujinshi">Doujinshi</option>
                     </select>
                 </div>
-                <div class="filter-group">
+                <div class="filter-group" style="grid-column: span 2;">
                     <select id="filter-genre">
                         <option value="all">Semua Genre</option>
                         <option value="Academy">Academy</option>
@@ -404,7 +1013,7 @@
                         <option value="Yuri">Yuri</option>
                     </select>
                 </div>
-                <div class="filter-group">
+                <div class="filter-group" style="grid-column: span 2;">
                     <select id="filter-status">
                         <option value="all">Semua Status</option>
                         <option value="Ongoing">Ongoing</option>
@@ -421,33 +1030,33 @@
     <!-- HALAMAN EDITOR & KONTRIBUTOR -->
     <div id="editor-page" style="display: none;">
         <div class="editor-page-container">
-            <div style="margin-bottom: 20px;">
-                <h2 style="color: var(--accent);">Panel Kontributor</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Publikasikan karya komik terbaru Anda langsung ke database cloud server ParagiMaca.</p>
+            <div style="margin-bottom: 15px; text-align: center;">
+                <h2 style="color: var(--accent); font-size: 1.2rem;">Panel Kontributor</h2>
+                <p style="color: var(--text-muted); font-size: 0.8rem;">Publikasikan karya komik terbaru Anda langsung ke database cloud server ParagiMaca.</p>
             </div>
 
             <div class="full-page-card">
                 <div class="form-grid-layout" style="margin-bottom: 12px;">
                     <div class="form-input-group">
-                        <label style="font-size: 0.85rem; color: var(--text-muted);">Tindakan Pemrosesan</label>
+                        <label>Tindakan Pemrosesan</label>
                         <select id="upload-action-type" onchange="toggleUploadMode(this.value)">
                             <option value="new">Buat Judul Komik Baru</option>
                             <option value="update">Update Chapter Komik Lama</option>
                         </select>
                     </div>
                     <div class="form-input-group" id="existing-manga-wrapper" style="display: none;">
-                        <label style="font-size: 0.85rem; color: var(--text-muted);">Pilih Judul Komik</label>
+                        <label>Pilih Judul Komik</label>
                         <select id="existing-manga-select"></select>
                     </div>
                 </div>
 
                 <div class="form-grid-layout" id="meta-manga-fields">
                     <div class="form-input-group">
-                        <label style="font-size: 0.85rem; color: var(--text-muted);">Judul Komik Baru</label>
+                        <label>Judul Komik Baru</label>
                         <input type="text" id="manga-title-input" placeholder="Masukkan Judul...">
                     </div>
                     <div class="form-input-group">
-                        <label style="font-size: 0.85rem; color: var(--text-muted);">Tipe Format</label>
+                        <label>Tipe Format</label>
                         <select id="manga-type-input">
                             <option value="Manga">Manga</option>
                             <option value="Manhua">Manhua</option>
@@ -455,35 +1064,35 @@
                             <option value="Doujinshi">Doujinshi</option>
                         </select>
                     </div>
-                    <div class="form-input-group" style="grid-column: span 2;">
-                        <span style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; display: block;">Pilih Genre:</span>
+                    <div class="form-input-group" style="grid-column: span 1;">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px; display: block; font-weight: 600;">Pilih Genre:</span>
                         <div id="manga-genre-checkbox-container" class="genre-checkbox-box"></div>
                     </div>
                 </div>
 
                 <div class="form-input-group" id="synopsis-wrapper">
-                    <label style="font-size: 0.85rem; color: var(--text-muted);">Sinopsis</label>
-                    <textarea id="manga-synopsis-input" rows="4" placeholder="Tulis sinopsis..."></textarea>
+                    <label>Sinopsis</label>
+                    <textarea id="manga-synopsis-input" rows="3" placeholder="Tulis sinopsis..."></textarea>
                 </div>
 
-                <div class="form-input-group" style="max-width: 320px;">
-                    <label style="font-size: 0.85rem; color: var(--text-muted);">Nomor Chapter</label>
+                <div class="form-input-group" style="max-width: 100%;">
+                    <label>Nomor Chapter</label>
                     <input type="text" id="chapter-num-input" placeholder="Contoh: 01, 02, 1.5">
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
                     <div class="file-picker-block" id="cover-picker-wrapper">
-                        <span style="font-size: 0.9rem; font-weight: bold; color: var(--accent);">1. Gambar Cover (Hanya untuk Komik Baru):</span>
+                        <span style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">1. Gambar Cover (Hanya Komik Baru):</span>
                         <input type="file" id="imgbb-cover-input" accept="image/*">
                     </div>
                     <div class="file-picker-block">
-                        <span style="font-size: 0.9rem; font-weight: bold; color: var(--accent);">2. Gambar Isi Bab (Bisa Pilih Banyak File):</span>
+                        <span style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">2. Gambar Isi Bab (Bisa Banyak File):</span>
                         <input type="file" id="imgbb-pages-input" accept="image/*" multiple>
                     </div>
                 </div>
 
-                <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                    <div id="upload-progress-text" style="font-size: 0.85rem; color: var(--warning); font-weight: bold;">Status: Siap memproses.</div>
+                <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; align-items: stretch;">
+                    <div id="upload-progress-text" style="font-size: 0.8rem; color: var(--warning); font-weight: bold; text-align: center;">Status: Siap memproses.</div>
                     <button id="upload-status-btn" class="primary-btn" onclick="executeUploadAction()">🚀 Terbitkan Update</button>
                 </div>
             </div>
@@ -497,22 +1106,22 @@
                 <div class="detail-cover-box">
                     <img id="detail-cover" src="" alt="Cover">
                 </div>
-                <div style="flex: 1; min-width: 250px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h2 id="detail-title" style="margin-bottom: 10px;">Judul Komik</h2>
-                        <button onclick="openEditPostModal()" style="background:transparent; border:none; cursor:pointer; font-size:1.2rem;" title="Edit Komik">✏️</button>
+                <div class="detail-info-block">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 10px;">
+                        <h2 id="detail-title" style="font-size: 1.2rem; line-height: 1.2; font-weight: 700;">Judul Komik</h2>
+                        <button onclick="openEditPostModal()" style="background:transparent; border:none; cursor:pointer; font-size:1.1rem; padding: 4px;" title="Edit Komik">✏️</button>
                     </div>
-                    <p style="margin-bottom: 10px; font-size: 0.9rem;">Status: <span class="status-badge" id="detail-status-text">Ongoing</span></p>
-                    <div id="detail-genres-container"></div>
+                    <p style="margin-bottom: 8px; font-size: 0.8rem;">Status: <span class="status-badge" id="detail-status-text">Ongoing</span></p>
+                    <div id="detail-genres-container" style="margin-bottom: 8px;"></div>
                     <div class="detail-synopsis">
-                        <h3 style="font-size: 1rem; margin-bottom: 5px; color: var(--accent);">Sinopsis</h3>
-                        <p id="detail-synopsis-text" style="font-size: 0.9rem; color: var(--text-muted);"></p>
+                        <h3 style="font-size: 0.85rem; margin-bottom: 4px; color: var(--accent); font-weight: 700; text-transform: uppercase;">Sinopsis</h3>
+                        <p id="detail-synopsis-text" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;"></p>
                     </div>
-                    <button class="primary-btn" onclick="readFirstChapter()" style="width: 100%; margin-top: 10px;">Baca Chapter Pertama</button>
+                    <button class="primary-btn" onclick="readFirstChapter()" style="width: 100%; margin-top: 5px; height: 40px; font-size: 0.85rem;">Baca Chapter Pertama</button>
                 </div>
             </div>
             <div>
-                <h3 style="border-bottom: 2px solid var(--bg-hover); padding-bottom: 10px;">Daftar Chapter</h3>
+                <h3 style="border-bottom: 1px solid var(--bg-hover); padding-bottom: 8px; font-size: 0.95rem; font-weight: 700;">Daftar Chapter</h3>
                 <div class="chapter-list" id="chapter-list-container"></div>
             </div>
         </div>
@@ -534,12 +1143,12 @@
                 <!-- TAB METADATA & EDIT GAMBAR LAMA -->
                 <div id="modal-tab-content-meta">
                     <div class="form-input-group">
-                        <label style="font-size: 0.8rem;">Judul Komik</label>
+                        <label>Judul Komik</label>
                         <input type="text" id="edit-manga-title">
                     </div>
                     <div class="form-grid-layout">
                         <div class="form-input-group">
-                            <label style="font-size: 0.8rem;">Tipe</label>
+                            <label>Tipe</label>
                             <select id="edit-manga-type">
                                 <option value="Manga">Manga</option>
                                 <option value="Manhua">Manhua</option>
@@ -548,7 +1157,7 @@
                             </select>
                         </div>
                         <div class="form-input-group">
-                            <label style="font-size: 0.8rem;">Status</label>
+                            <label>Status</label>
                             <select id="edit-manga-status">
                                 <option value="Ongoing">Ongoing</option>
                                 <option value="Tamat">Tamat</option>
@@ -556,37 +1165,37 @@
                         </div>
                     </div>
                     <div class="form-input-group">
-                        <label style="font-size: 0.8rem;">Tautan Gambar Cover</label>
+                        <label>Tautan Gambar Cover</label>
                         <input type="text" id="edit-manga-cover">
                     </div>
                     <div class="form-input-group">
-                        <label style="font-size: 0.8rem;">Sinopsis</label>
+                        <label>Sinopsis</label>
                         <textarea id="edit-manga-synopsis" rows="3"></textarea>
                     </div>
                     <div class="form-input-group">
-                        <label style="font-size: 0.8rem;">Genre</label>
+                        <label>Genre</label>
                         <div id="edit-genre-checkbox-container" class="genre-grid-checkbox"></div>
                     </div>
 
-                    <div style="margin-top: 20px; background: var(--bg-dark); padding: 15px; border-radius: 8px;">
-                        <h4 style="color: var(--accent); margin-bottom: 10px;">Kelola Gambar Bab Lama</h4>
-                        <select id="edit-chapter-select" onchange="loadChapterPagesToEditor(this.value)" style="width: 100%; padding: 8px; background: var(--bg-panel); color: white; border: 1px solid var(--bg-hover); border-radius: 4px; margin-bottom: 15px;">
+                    <div style="margin-top: 15px; background: var(--bg-dark); padding: 12px; border-radius: 8px; border: 1px solid var(--bg-hover);">
+                        <h4 style="color: var(--accent); margin-bottom: 8px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Kelola Gambar Bab Lama</h4>
+                        <select id="edit-chapter-select" onchange="loadChapterPagesToEditor(this.value)" style="width: 100%; padding: 8px; background: var(--bg-panel); color: white; border: 1px solid var(--bg-hover); border-radius: 6px; margin-bottom: 12px; font-size: 0.8rem;">
                             <option value="">Pilih Chapter yang Ingin Diedit...</option>
                         </select>
                         
                         <div id="editor-chapter-pages-container" style="display:none;">
                             <!-- FITUR GANTI GAMBAR MASSAL LOKAL -->
                             <div class="file-picker-block" style="border-color: var(--warning);">
-                                <label style="display: block; font-size: 0.8rem; color: var(--warning); margin-bottom: 5px; font-weight: bold;">⚡ Ganti / Timpa Semua Gambar Bab Ini dari File Lokal:</label>
+                                <label style="display: block; font-size: 0.75rem; color: var(--warning); margin-bottom: 4px; font-weight: bold;">⚡ Ganti / Timpa Semua Gambar Bab Ini:</label>
                                 <input type="file" id="edit-chapter-pages-bulk-input" accept="image/*" multiple>
-                                <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">*Jika Anda memilih file di sini, URL di bawah akan diabaikan dan diganti dengan file baru dari PC/HP Anda.</p>
+                                <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 4px;">*Jika Anda memilih file di sini, URL di bawah akan diganti dengan file baru.</p>
                             </div>
 
-                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Atau edit URL gambar secara manual di bawah ini:</p>
-                            <div id="pages-edit-list" style="display:flex; flex-direction:column; gap:8px; max-height:200px; overflow-y:auto; padding:10px; background: #111; border-radius:6px;"></div>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px;">Atau edit URL gambar secara manual di bawah:</p>
+                            <div id="pages-edit-list" style="display:flex; flex-direction:column; gap:6px; max-height:150px; overflow-y:auto; padding:8px; background: #111; border-radius:6px;"></div>
                             
-                            <div style="margin-top: 10px; display:flex; gap:10px;">
-                                <button type="button" class="action-light-btn" onclick="addNewPageUrlRow()">➕ Tambah Baris Manual</button>
+                            <div style="margin-top: 10px; display:flex; gap:8px;">
+                                <button type="button" class="action-light-btn" onclick="addNewPageUrlRow()">➕ Tambah Baris</button>
                                 <button type="button" class="action-light-btn danger" onclick="deleteCurrentChapter()">🗑️ Hapus Bab Ini</button>
                             </div>
                         </div>
@@ -595,21 +1204,21 @@
 
                 <!-- TAB UNGGAH BAB DARI MODAL -->
                 <div id="modal-tab-content-upload" style="display: none;">
-                    <div class="form-input-group" style="max-width: 200px;">
-                        <label style="font-size: 0.8rem;">Nomor Bab Baru</label>
+                    <div class="form-input-group" style="max-width: 150px;">
+                        <label>Nomor Bab Baru</label>
                         <input type="text" id="modal-chapter-num-input" placeholder="Contoh: 03">
                     </div>
                     <div class="file-picker-block">
-                        <span style="font-size: 0.9rem; color: var(--accent); font-weight: bold;">Gambar Isi Bab (Bisa Banyak File):</span>
+                        <span style="font-size: 0.8rem; color: var(--accent); font-weight: bold;">Gambar Isi Bab (Bisa Banyak File):</span>
                         <input type="file" id="modal-imgbb-pages-input" accept="image/*" multiple style="width: 100%;">
                     </div>
-                    <button class="primary-btn" id="modal-chapter-upload-btn" onclick="uploadNewChapterFromModal()" style="width: 100%; margin-top: 10px; background: var(--success);">🚀 Terbitkan Bab Baru</button>
+                    <button class="primary-btn" id="modal-chapter-upload-btn" onclick="uploadNewChapterFromModal()" style="width: 100%; margin-top: 10px; background: var(--success); height: 40px;">🚀 Terbitkan Bab Baru</button>
                 </div>
             </div>
             
             <div class="modal-footer">
-                <div id="edit-progress-text" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Siap melakukan perubahan.</div>
-                <button class="primary-btn" id="save-edit-btn" onclick="saveMangaChanges()">Simpan Perubahan</button>
+                <div id="edit-progress-text" style="font-size: 0.75rem; color: var(--text-muted); font-weight: bold;">Siap melakukan perubahan.</div>
+                <button class="primary-btn" id="save-edit-btn" onclick="saveMangaChanges()" style="padding: 8px 16px;">Simpan</button>
             </div>
         </div>
     </div>
@@ -617,14 +1226,14 @@
     <!-- HALAMAN PEMBACA / READER -->
     <div id="reader-page" style="display: none;">
         <div class="reader-controls">
-            <span id="page-indicator" style="color: white; font-weight: bold; font-size: 0.9rem;">1 / 1</span>
+            <span id="page-indicator" style="color: white; font-weight: bold; font-size: 0.8rem;">1 / 1</span>
             <select id="mode-select" onchange="switchReaderMode(this.value)">
                 <option value="webtoon">Mode Webtoon (Scroll)</option>
                 <option value="manga">Mode Manga (Geser)</option>
             </select>
         </div>
         <div id="reader-container"></div>
-        <div id="manga-nav-buttons" style="display: flex; justify-content: center; gap: 20px; padding: 20px; background: var(--bg-dark);">
+        <div id="manga-nav-buttons" style="display: flex; justify-content: center; gap: 15px; padding: 15px 12px calc(15px + var(--safe-bottom)); background: var(--bg-dark);">
             <button class="nav-arrow-btn" onclick="prevPage()">◀️</button>
             <button class="nav-arrow-btn" onclick="nextPage()">▶️</button>
         </div>

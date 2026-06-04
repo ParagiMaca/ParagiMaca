@@ -26,6 +26,12 @@
     "cover": "https://i.ibb.co/mQnbd1p/9931w.jpg",
     "chapters": [
       {
+        "chapter_number": "10",
+        "pages": [
+          "https://i.ibb.co/YBG2yzLg/00000000-00100000.webp"
+        ]
+      },
+      {
         "chapter_number": "9",
         "pages": [
           "https://i.ibb.co/VWjRFcvF/00000000-00090000.webp",

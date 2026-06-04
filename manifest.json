@@ -1,0 +1,22 @@
+{
+"name": "ParagiMaca - Katalog Komik Modern",
+"short_name": "ParagiMaca",
+"description": "Katalog Komik Modern untuk membaca Manga, Manhua, Manhwa, dan Doujinshi",
+"start_url": "./index.html",
+"display": "standalone",
+"background_color": "#0f0f12",
+"theme_color": "#18181c",
+"orientation": "portrait",
+"icons": [
+{
+"src": "https://i.ibb.co/R4PNCgBD/Gemini-Generated-Image-stlv2rstlv2rstlv.png",
+"sizes": "192x192",
+"type": "image/png"
+},
+{
+"src": "https://i.ibb.co/R4PNCgBD/Gemini-Generated-Image-stlv2rstlv2rstlv.png",
+"sizes": "512x512",
+"type": "image/png"
+}
+]
+}
